@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
   getAllClass,
+  GetSpecifiApps,
   GetToken,
   GetUserAppPassword,
   GetUserInformations,
   UpdateUserAppPassword,
   UpdateUserInfo,
+  AddNewApp,
   UpdateUserPassword,
 } from "../../../../actions/action";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
 import Loading from "../../../Loading/loading";
 import styles from "./userDetails.module.scss";
@@ -19,6 +21,7 @@ import {
   ArrowLeftSolid,
   IconUser,
   IconLock,
+  PlusCircleSolid,
 } from "../../../../icons";
 import Office from "../../../../assets/images/office.png";
 import Actively from "../../../../assets/images/actively.png";
@@ -53,6 +56,7 @@ export default function UserDetail({ tabsType }) {
   const [selectedClass, SetSelectedClass] = useState("");
   const [username, setUsername] = useState("");
   const [className, setClassName] = useState("");
+  const [allAppsData, setAllAppsData] = useState([]);
   const [role, setRole] = useState("");
   const [oldClassId, setOldClassId] = useState("");
   const [oldClassName, setOldClassName] = useState("");
@@ -62,6 +66,7 @@ export default function UserDetail({ tabsType }) {
   const [payload, setPayload] = useState({});
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [modalType, setModalType] = useState("");
+  const [existedAppData, setExistedAppData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(false);
   const userId = params.id;
   console.log(
@@ -88,6 +93,9 @@ export default function UserDetail({ tabsType }) {
         setLastName(Cdata.last_name);
         setProfilePhoto(Cdata.profile_photo);
         setUsername(Cdata.username);
+        GetSpecifiApps(token, 8).then((data) => {
+          setAllAppsData(data.data.data[0].Apps);
+        });
         if (Cdata.role === "student") {
           setSchool(Cdata.studentInfo.school);
           setSchoolNumber(Cdata.studentInfo.studentNumber);
@@ -104,6 +112,18 @@ export default function UserDetail({ tabsType }) {
               : Cdata.studentInfo.class._id,
           });
           setOldClassName(Cdata.studentInfo.class.name);
+          GetSpecifiApps(
+            token,
+            ["10", "11", "12"].includes(
+              Cdata.studentInfo.class.name.slice(0, 2)
+            )
+              ? Cdata.studentInfo.class.name.slice(0, 2)
+              : Cdata.studentInfo.class.name[0]
+          )
+            .then((fetchAppData) => {
+              setAllAppsData(fetchAppData);
+            })
+            .catch((e) => console.log(e));
         }
       })
       .catch((e) => {
@@ -287,78 +307,185 @@ export default function UserDetail({ tabsType }) {
           />
         </>
       ) : (
-        <div className={styles.appsPasswords}>
-          <div className={styles.titles}>
-            <div className={styles.appNameTitle}>Uygulama Adı</div>
-            <div className={styles.usernameTitle}>Kullanıcı Adı</div>
-            <div className={styles.passwordTitle}>Şifre</div>
-            <div className={styles.edit}>Düzenle</div>
+        <>
+          <div
+            onClick={() => {
+              setIsActiveModal(true);
+              setModalType("add");
+            }}
+            className={styles.feedback}
+          >
+            <PlusCircleSolid className={styles.feedbackIcon} />
+            <div className={styles.feedbackTitle}>Yeni Uygulama Ekle</div>
           </div>
-          <div className={styles.renderApps}>
-            {appPasswordData && appPasswordData.length !== 0
-              ? appPasswordData.map((item) => {
-                  return (
-                    <div className={styles.renderAppRow}>
-                      <div className={styles.appAvatarWrapper}>
-                        <div className={styles.appAvatar}>
-                          <RenderIcon
-                            iconName={item.app.name}
-                            className={styles.icon}
-                          />
+          <div className={styles.appsPasswords}>
+            <div className={styles.titles}>
+              <div className={styles.appNameTitle}>Uygulama Adı</div>
+              <div className={styles.usernameTitle}>Kullanıcı Adı</div>
+              <div className={styles.passwordTitle}>Şifre</div>
+              <div className={styles.edit}>Düzenle</div>
+            </div>
+            <div className={styles.renderApps}>
+              {appPasswordData && appPasswordData.length !== 0
+                ? appPasswordData.map((item) => {
+                    return (
+                      <div className={styles.renderAppRow}>
+                        <div className={styles.appAvatarWrapper}>
+                          <div className={styles.appAvatar}>
+                            <RenderIcon
+                              iconName={item.app.name}
+                              className={styles.icon}
+                            />
+                          </div>
+                          <div className={styles.appName}>{item.app.title}</div>
                         </div>
-                        <div className={styles.appName}>{item.app.title}</div>
-                      </div>
 
-                      <div className={styles.appUsername}>
-                        {item.credentials.email
-                          ? item.credentials.email
-                          : item.credentials.username
-                          ? item.credentials.username
-                          : ""}
+                        <div className={styles.appUsername}>
+                          {item.credentials.email
+                            ? item.credentials.email
+                            : item.credentials.username
+                            ? item.credentials.username
+                            : ""}
+                        </div>
+                        <div className={styles.appPassword}>
+                          {item.credentials.password}
+                        </div>
+                        <EditSolid
+                          onClick={() => {
+                            setAppData({
+                              appName: item.app.title,
+                              username: item.credentials.email
+                                ? item.credentials.email
+                                : item.credentials.username,
+                              password: item.credentials.password,
+                            });
+                            setPayload({
+                              _id: item._id,
+                              app: item.app._id,
+                              user: userId,
+                            });
+                            setModalType("edit");
+                            setIsActiveModal(true);
+                          }}
+                          className={styles.editIcon}
+                        />
                       </div>
-                      <div className={styles.appPassword}>
-                        {item.credentials.password}
-                      </div>
-                      <EditSolid
-                        onClick={() => {
-                          setAppData({
-                            appName: item.app.title,
-                            username: item.credentials.email
-                              ? item.credentials.email
-                              : item.credentials.username,
-                            password: item.credentials.password,
-                          });
-                          setPayload({
-                            _id: item._id,
-                            app: item.app._id,
-                            user: userId,
-                          });
-                          setModalType("edit");
-                          setIsActiveModal(true);
-                        }}
-                        className={styles.editIcon}
-                      />
-                    </div>
-                  );
-                })
-              : ""}
+                    );
+                  })
+                : ""}
+            </div>
           </div>
-        </div>
+        </>
       )}
       <Modal isActive={isActiveModal} setIsActive={setIsActiveModal}>
         <RenderModalContent
           appData={appData}
           userId={userId}
           payload={payload}
+          appPasswordData={appPasswordData}
+          modalType={modalType}
+          allApps={allAppsData}
+          setIsActiveModal={setIsActiveModal}
         />
       </Modal>
     </div>
   );
 }
-export function RenderModalContent({ appData, userId, payload }) {
+export function RenderModalContent({
+  appData,
+  appPasswordData,
+  userId,
+  payload,
+  modalType,
+  setIsActiveModal,
+  allApps,
+}) {
+  const { id } = useLocation();
   const [appUsername, setAppUsername] = useState({ status: true });
   const [appPassword, setAppPassword] = useState({ status: true });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [selectedApp, setSelectedApp] = useState("");
+  const convertingApp = appPasswordData.map((item) => {
+    return item.app.name;
+  });
   const token = GetToken();
+  console.log(convertingApp);
+  console.log(
+    allApps
+      .filter((item) => {
+        return !convertingApp.includes(item.app.name);
+      })
+      .map((item) => {
+        return {
+          value: item.app.title,
+          id: item.app.id ? item.app.id : item.app._id,
+        };
+      })[0]?.value
+  );
+
+  if (modalType === "add") {
+    return (
+      <div>
+        <h3>Kullanıcı Adı</h3>
+        <Input
+          inputStyle={"detail"}
+          placeholder={"Kullanıcı Adı"}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <h3>Şifre</h3>
+        <Input
+          inputStyle={"detail"}
+          placeholder={"Şifre"}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <h3>Uygulama Ekle</h3>
+        <Dropdown
+          type={"selectable"}
+          onClick={(e) => setSelectedApp({ value: e.value, id: e.id })}
+          dropdownData={allApps
+            .filter((item) => {
+              return !convertingApp.includes(item.app.name);
+            })
+            .map((item) => {
+              return {
+                value: item.app.title,
+                id: item.app.id ? item.app.id : item.app._id,
+              };
+            })}
+          value={
+            allApps
+              .filter((item) => {
+                return !convertingApp.includes(item.app.name);
+              })
+              .map((item) => {
+                return {
+                  value: item.app.title,
+                  id: item.app.id ? item.app.id : item.app._id,
+                };
+              })[0]?.value
+          }
+        />
+        <Button
+          type={"change"}
+          title={"Kaydet"}
+          onClick={() => {
+            setIsActiveModal(false);
+            let payload = {
+              user: id,
+              credentials: {
+                username: username,
+                password: password,
+              },
+            };
+            AddNewApp(token, payload, selectedApp.id).then(() =>
+              alert("Başarıyla uygulama eklendi")
+            );
+          }}
+        />
+      </div>
+    );
+  }
   return (
     <div>
       <h3>Uygulama Şifresi Değiştirme</h3>

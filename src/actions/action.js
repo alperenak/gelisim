@@ -679,3 +679,24 @@ export async function UpdateUserInfo(
   const response = axios.put(`${uri}/users/${userId}`, payload, config);
   return response;
 }
+export async function AddNewApp(
+  token,
+  payload = {
+    user: "5fc06ca6d08c505e12fec7ff",
+    credentials: {
+      username: "ecrtosuner85589",
+      password: "dunya123",
+    },
+  },
+  appId
+) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  const response = axios.post(
+    `${uri}/gelisim-sso/app/${appId}`,
+    payload,
+    config
+  );
+  return response;
+}
