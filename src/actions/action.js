@@ -1,13 +1,8 @@
 import axios from "axios";
-import { useContext } from "react";
 import { useCookies } from "react-cookie";
-import http from "../helpers/httpHelper";
-import config from "../appConfig";
 const uri = "https://gelisim.herokuapp.com/api/v1";
 const location = window.location;
-const errorMessageBuilder = (response) => {
-  return (response.errorData && response.errorData.code) || "0";
-};
+
 export async function GetAuthentication(username, password) {
   // axios
   //   .post("https://gelisim-okullari.herokuapp.com/api/v1/auth/login", {
@@ -199,11 +194,14 @@ export async function addClass(token, instructorId, classesName) {
   );
   return response;
 }
-export function getAllUser(token) {
+export function getAllUser(token, fullName) {
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
-  const response = axios.get(`${uri}/users`, config);
+  const response = axios.get(
+    `${uri}/users${fullName ? `?fullName=${fullName}` : ""}`,
+    config
+  );
   return response;
 }
 export function getAllStudents(token, page, limit) {
@@ -638,12 +636,30 @@ export async function GetGeneralLogs(token, userId, date) {
     config
   );
 }
+export async function GetClassLogs(token, classId, date) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  return await axios.get(
+    `${uri}/logs/app-logs?classId=${classId}&date=${date}`,
+    config
+  );
+}
 export async function GetDetailLogs(token, userId, date) {
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
   return await axios.get(
     `${uri}/logs/app-logs?userId=${userId}&date=${date}&detail=true`,
+    config
+  );
+}
+export async function GetClassDetailLogs(token, classId, date) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  return await axios.get(
+    `${uri}/logs/app-logs?classId=${classId}&date=${date}&detail=true`,
     config
   );
 }

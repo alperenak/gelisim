@@ -4,15 +4,12 @@ import {
   ChevronLeftSolid,
   ChevronRightSolid,
   Download,
-  Info,
   PdfDownload,
-  Xls,
   YellowTip,
 } from "../../../../icons";
 import Dropdown from "../../../Dropdown/dropdown";
 import TeacherAvatar from "../../../../assets/images/teacherAvatar.png";
 import AlertBox from "../../../Alert/alert";
-import { sumTimes } from "../../../../utils/utils";
 import {
   GetSyllabusDownloadLink,
   GetSyllabusPdfDownloadLink,
@@ -21,15 +18,12 @@ import {
 export default function Syllabus({ syllabusData, classInfo }) {
   console.log("syllabu", syllabusData);
   console.log("classInfo", classInfo);
-  let date = new Date();
-  let weekDays = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
-  const [tablePagination, setTablePagination] = useState([
+  const [tablePagination] = useState([
     { start: 0, end: 2 },
     { start: 2, end: 4 },
     { start: 4, end: 5 },
   ]);
   const [syllabusPageNum, setSyllabusPageNum] = useState(1);
-  let daysData = getDayData(weekDays);
   const token = GetToken();
   return (
     <div className={styles.SyllabusCard}>
