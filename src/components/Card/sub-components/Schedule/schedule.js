@@ -1,9 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styles from "./schedule.module.scss";
 import {
   Ders,
   Download,
-  Info,
   User,
   DateIcon,
   Clock,
@@ -20,16 +19,10 @@ import {
   GetSchedulesPdfDownloadLink,
   GetToken,
 } from "../../../../actions/action";
-import { AlertboxContext } from "../../../../context/alertboxContext";
 export default function Schedule({ scheduleData, teachersData, classInfo }) {
   const token = GetToken();
-  const [alertboxData, setAlertboxData] = useContext(AlertboxContext);
   const d = new Date();
-  const [tablePagination, setTablePagination] = useState([
-    { start: 0, end: 2 },
-    { start: 2, end: 4 },
-    { start: 4, end: 5 },
-  ]);
+
   const [schedulePageNum, setSchedulePageNum] = useState(1);
   const staticTitleData = [
     {
@@ -87,18 +80,11 @@ export default function Schedule({ scheduleData, teachersData, classInfo }) {
           </div>
           <div className={styles.downloadTitle}>Sınav Takvimini İndir</div>
         </div>
-        {/*
-        <div className={styles.feedback}>
-          <Info className={styles.feedbackIcon} />
-          <div className={styles.feedbackTitle}>Sorun Bildir</div>
-        </div>
-        */}
       </div>
       <div className={styles.scheduleTitlesSection}>
         <RenderResponsiveTitles
           titleData={staticTitleData}
           schedulePageNum={schedulePageNum}
-          tablePagination={tablePagination}
         />
         <table className={styles.scheduleTitlesTable}>
           <tr className={styles.scheduleTitlesRow}>
@@ -138,9 +124,9 @@ export default function Schedule({ scheduleData, teachersData, classInfo }) {
       <div className={styles.scheduleSection}>
         <table>
           {scheduleData && scheduleData !== null ? (
-            scheduleData.map((item) => {
+            scheduleData.map((item, index) => {
               return (
-                <tr>
+                <tr key={index}>
                   <div className={styles.scheduleTeacher}>
                     <div className={styles.avatar}>
                       <img
@@ -215,9 +201,9 @@ function RenderResponsiveTitles({
             tablePagination[schedulePageNum - 1].start,
             tablePagination[schedulePageNum - 1].end
           )
-          .map((item) => {
+          .map((item, index) => {
             return (
-              <div className={styles.scheduleTitles}>
+              <div key={index} className={styles.scheduleTitles}>
                 {item.icon}
                 <td className={item.titleStyle}>{item.title}</td>
               </div>

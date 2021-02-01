@@ -28,9 +28,10 @@ export default function Selectable({
         }`}
         onClick={() => {}}
       >
-        {dropdownData.map((item) => {
+        {dropdownData.map((item, index) => {
           return (
             <div
+              key={index}
               onClick={() => {
                 onClick({ value: item.value, id: item.id });
                 setDrodownValue(item.value);

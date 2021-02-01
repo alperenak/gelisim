@@ -39,9 +39,10 @@ export default function ActivityDetail({ match }) {
               { name: "Bu ay" },
               { name: "Geçen ay" },
               { name: "Tümü" },
-            ].map((item) => {
+            ].map((item, index) => {
               return (
                 <div
+                  key={index}
                   onClick={() => setDropdownName(item.name)}
                   className={styles.dropdownItems}
                 >

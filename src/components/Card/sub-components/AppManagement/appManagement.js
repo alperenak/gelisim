@@ -1,34 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./appManagement.module.scss";
-import Loading from "../../../../components/Loading/loading";
-import Office from "../../../../assets/images/office.png";
-import Actively from "../../../../assets/images/actively.png";
-import BrainPop from "../../../../assets/images/brainpop.png";
-import KhanAcademy from "../../../../assets/images/khan.png";
-import Morpa from "../../../../assets/images/morpa.png";
-import Okuvaryum from "../../../../assets/images/okvaryum.png";
-import RazKids from "../../../../assets/images/razkids.png";
-import Udemy from "../../../../assets/images/udemy.png";
-import RazPlus from "../../../../assets/images/razPlus.svg";
-import ScienceAz from "../../../../assets/images/ScienceAz.svg";
-import WritingAz from "../../../../assets/images/writingAz.svg";
-
-import VocabularyAz from "../../../../assets/images/vocabulary.png";
-import { CheckSolid } from "../../../../icons";
 import Button from "../../../Button/button";
 import AppsRender from "../../../Apps/apps";
-import {
-  GetSpecifiApps,
-  GetToken,
-  SaveSpecificApps,
-} from "../../../../actions/action";
-import { useLocation, useParams } from "react-router-dom";
+import { GetToken, SaveSpecificApps } from "../../../../actions/action";
 
 export default function AppManagement({ dropdownValue, appData, setAppData }) {
-  const [changeValue, setChangeValue] = useState([]);
-
-  const { id } = useParams();
-
   const token = GetToken();
 
   return (
@@ -45,6 +21,7 @@ export default function AppManagement({ dropdownValue, appData, setAppData }) {
             {appData.data?.data[0].Apps.map((item, index) => {
               return (
                 <div
+                  key={index}
                   onClick={() => {
                     let arr = appData;
                     arr.data.data[0].Apps[index].isSet = !item.isSet;
@@ -70,9 +47,9 @@ export default function AppManagement({ dropdownValue, appData, setAppData }) {
         </div>
         <Button
           onClick={() => {
-            SaveSpecificApps(token, appData.data.data).then((item) => {
-              window.location.reload();
-            });
+            SaveSpecificApps(token, appData.data.data).then(() =>
+              window.location.reload()
+            );
           }}
           type={"primary"}
           title={"Kaydet"}

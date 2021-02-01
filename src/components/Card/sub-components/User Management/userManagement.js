@@ -2,35 +2,20 @@ import React, { useEffect, useState } from "react";
 import styles from "./userManagement.module.scss";
 import {
   Ders,
-  Download,
-  Info,
   User,
-  Date,
-  Clock,
-  GreenTip,
   PlusCircleSolid,
-  EditSolid,
   TrashSolid,
   Down,
 } from "../../../../icons";
-import AlertBox from "../../../Alert/alert";
-import { ConvertDate, ConvertTime } from "../../../../utils/utils";
 import Modal from "../../../Modal/modal";
 import Input from "../../../Input/input";
 import Button from "../../../Button/button";
 import {
-  addClass,
   CreateUser,
-  deleteClass,
-  getAllClass,
-  getAllUser,
   deleteUser,
-  getSpesificRoleUsers,
   GetToken,
-  updateClass,
   updateUser,
 } from "../../../../actions/action";
-import Pagination from "../../../Pagination/pagination";
 import { useHistory } from "react-router-dom";
 // import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
 export default function UserManagement({
@@ -38,21 +23,10 @@ export default function UserManagement({
   studentsData,
   teachersData,
 }) {
-  const [classData, setClassData] = useState([
-    { name: "5 A", teacher: "Alperen Karaguzel" },
-    { name: "5 B", teacher: "Alperen Karaguzel" },
-    { name: "5 C", teacher: "Alperen Karaguzel" },
-    { name: "5 D", teacher: "Alperen Karaguzel" },
-    { name: "5 E", teacher: "Alperen Karaguzel" },
-  ]);
   const [isActive, setIsActive] = useState(false);
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
-  const [pageNum, setPageNum] = useState(1);
   const history = useHistory();
-  const [generalData, setGeneralData] = useState(
-    tabsType === "student" ? studentsData : teachersData
-  );
   const token = GetToken();
   console.log("general", studentsData);
 
@@ -82,10 +56,6 @@ export default function UserManagement({
               <User className={`${styles.scheduleTitlesIcon} ${styles.user}`} />
               <td className={styles.ogretmen}>Ad Soyad</td>
             </div>
-            {/* <div className={styles.scheduleTitles}>
-              <Ders className={`${styles.scheduleTitlesIcon}`} />
-              <td>Sınıf</td>
-            </div> */}
             <div className={styles.scheduleTitles}>
               <Ders
                 className={`${styles.scheduleTitlesIcon} ${styles.editAndDelete}`}
@@ -98,9 +68,10 @@ export default function UserManagement({
       <div className={styles.scheduleSection}>
         <table>
           {studentsData && studentsData !== null && tabsType === "student"
-            ? studentsData.map((item) => {
+            ? studentsData.map((item, index) => {
                 return (
                   <tr
+                    key={index}
                     onClick={() => {
                       setClassId(item._id);
                       history.push(
@@ -112,12 +83,7 @@ export default function UserManagement({
                   >
                     <div className={styles.scheduleTeacher}>
                       <div className={styles.avatar}>
-                        <img
-                          // src={String(
-                          //   getTeacherAvatar(teachersData, item.course.code)
-                          // ).replace(/,/gi, "")}\
-                          src={item.profile_photo}
-                        />
+                        <img src={item.profile_photo} />
                       </div>
                       <td>{`${item.first_name} ${item.last_name}`}</td>
                     </div>
@@ -126,18 +92,9 @@ export default function UserManagement({
                         ? item.studentInfo.class?.name
                         : "sınıf bilgisi yok"}
                     </td>
+                    <td className={styles.space}></td>
                     <td className={styles.space}>
-                      {/* <PlusCircleSolid className={styles.addExamIcon} /> */}
-                    </td>
-                    <td className={styles.space}>
-                      {/* <EditSolid
-                        onClick={() => {
-                          setClassId(item._id);
-                          setModalType("edit");
-                          setIsActive(true);
-                        }}
-                        className={styles.editIcon}
-                      /> */}
+                      x
                       <TrashSolid
                         onClick={() => {
                           deleteUser(token, item._id);
@@ -148,9 +105,10 @@ export default function UserManagement({
                   </tr>
                 );
               })
-            : teachersData.map((item) => {
+            : teachersData.map((item, index) => {
                 return (
                   <tr
+                    key={index}
                     onClick={() => {
                       setClassId(item._id);
                       history.push(
@@ -162,26 +120,12 @@ export default function UserManagement({
                   >
                     <div className={styles.scheduleTeacher}>
                       <div className={styles.avatar}>
-                        <img
-                          // src={String(
-                          //   getTeacherAvatar(teachersData, item.course.code)
-                          // ).replace(/,/gi, "")}\
-                          src={item.profile_photo}
-                        />
+                        <img src={item.profile_photo} />
                       </div>
                       <td>{`${item.first_name} ${item.last_name}`}</td>
                     </div>
-                    {/* <td>{item. ? item.teacher : "Eyüp Saruhan"}</td> */}
                     <td className={styles.space}></td>
                     <td className={styles.space}>
-                      {/* <EditSolid
-                        onClick={() => {
-                          setClassId(item._id);
-                          setModalType("edit");
-                          setIsActive(true);
-                        }}
-                        className={styles.editIcon}
-                      /> */}
                       <TrashSolid
                         onClick={() => {
                           deleteUser(token, item._id);
@@ -194,15 +138,6 @@ export default function UserManagement({
               })}
         </table>
       </div>
-      {/* <AlertBox
-        title={
-          "Yukarıdaki ders programı **2020 / 2021 Eğitim - Öğretim Yılı**’nın ilk yarısına kadar geçerlidir."
-        }
-        type={"primary"}
-      >
-        <GreenTip className={styles.greenTip} />
-      </AlertBox> */}
-
       <Modal isActive={isActive} setIsActive={setIsActive}>
         <RenderModalContent
           isActive={isActive}
@@ -217,16 +152,8 @@ export default function UserManagement({
   );
 }
 
-function RenderModalContent({
-  type,
-  isActive,
-  setIsActive,
-  classId,
-  teachersData,
-  tabsType,
-}) {
+function RenderModalContent({ type, setIsActive, classId, tabsType }) {
   console.log(classId);
-  const [updatingClassName, setUpdatingClassName] = useState("");
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
@@ -235,8 +162,6 @@ function RenderModalContent({
   const [gender, setGender] = useState("");
   const [dropdownActive, setDropdownActive] = useState();
   const [dropdownName, setDropdownName] = useState("Cinsiyeti Seçiniz");
-  const [instructorId, setInstructorId] = useState("");
-
   const token = GetToken();
 
   useEffect(() => {
@@ -247,7 +172,6 @@ function RenderModalContent({
     return (
       <>
         <Input
-          // value={addAnnouncementsTitle}
           placeholder="Adını Giriniz"
           onChange={(e) => setFirstname(e.target.value)}
           inputStyle={"modal"}
@@ -279,10 +203,7 @@ function RenderModalContent({
               username,
               phone,
               classId
-            ).then(() =>
-              // GetAnnouncements(token)
-              window.location.reload()
-            );
+            ).then(() => window.location.reload());
             setIsActive(false);
           }}
         />
@@ -292,35 +213,26 @@ function RenderModalContent({
     return (
       <>
         <Input
-          // value={addAnnouncementsTitle}
           placeholder="Adı giriniz"
           onChange={(e) => setFirstname(e.target.value)}
           inputStyle={"modal"}
         />
         <Input
-          // value={addAnnouncementsTitle}
           placeholder="Soyadı giriniz"
           onChange={(e) => setLastname(e.target.value)}
           inputStyle={"modal"}
         />
         <Input
-          // value={addAnnouncementsTitle}
           placeholder="E-posta giriniz"
           onChange={(e) => setUsername(e.target.value)}
           inputStyle={"modal"}
         />
         <Input
-          // value={addAnnouncementsTitle}
           placeholder="Telefon Numarası giriniz"
           onChange={(e) => setPhone(e.target.value)}
           inputStyle={"modal"}
         />
-        {/* <Input
-          // value={addAnnouncementsTitle}
-          placeholder="Cinsiyeti giriniz"
-          onChange={(e) => setGender(e.target.value)}
-          inputStyle={"modal"}
-        /> */}
+
         <div
           id={"classDropdown"}
           onClick={() => setDropdownActive(!dropdownActive)}
@@ -336,9 +248,10 @@ function RenderModalContent({
             }`}
             onClick={() => {}}
           >
-            {[{ name: "Erkek" }, { name: "Kız" }].map((item) => {
+            {[{ name: "Erkek" }, { name: "Kız" }].map((item, index) => {
               return (
                 <div
+                  key={index}
                   onClick={() => {
                     setDropdownName(item.name);
                     if (item.name === "Erkek") setGender("male");
@@ -352,12 +265,6 @@ function RenderModalContent({
             })}
           </div>
         </div>
-        {/* <Input
-          // value={addAnnouncementsTitle}
-          placeholder="Rolünü giriniz (admin, öğrenci, öğretmen)"
-          onChange={(e) => setRole(e.target.value)}
-          inputStyle={"modal"}
-        /> */}
         <Button
           type={"modal"}
           title={"Ekle"}
@@ -371,9 +278,7 @@ function RenderModalContent({
               phone,
               role,
               gender
-            ).then(() => {
-              window.location.reload();
-            });
+            ).then(() => window.location.reload());
           }}
         />
       </>

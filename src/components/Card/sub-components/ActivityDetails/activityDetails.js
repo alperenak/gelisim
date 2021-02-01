@@ -22,7 +22,6 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
   const [logsDetailData, setLogsDetailData] = useState([]);
   const token = GetToken();
   const { id } = useParams();
-  const [mode, setMode] = useState("");
   const query = useQuery();
   const isClass = query.get("class");
   useEffect(() => {
@@ -37,7 +36,6 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
         .then((data) => {
           console.log("classData", data.data.data);
           setLogData(data.data.data.logs);
-          if (data.data.data.logs[0]?.user) setMode("class");
           setLaoding(false);
         })
         .then(() => {});
@@ -48,7 +46,6 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
       GetGeneralLogs(token, id, convertedDropdownValue)
         .then((data) => {
           setLogData(data.data.data.logs);
-          if (data.data.data.logs[0]?.user) setMode("class");
           setLaoding(false);
         })
         .then(() => {});
@@ -117,7 +114,7 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
               {tabsType === "Genel" && LogData.length !== 0 ? (
                 LogData?.map((item, index) => {
                   return (
-                    <tr onClick={() => {}}>
+                    <tr onClick={() => {}} key={index}>
                       <div className={styles.scheduleTeacher}>
                         <div className={styles.avatar}>
                           <img alt="" src={Office} />
@@ -132,9 +129,9 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
                   );
                 })
               ) : tabsType === "Detaylar" && LogData.length !== 0 ? (
-                logsDetailData.map((item) => {
+                logsDetailData.map((item, index) => {
                   return (
-                    <tr>
+                    <tr key={index}>
                       <div className={styles.scheduleTeacher}>
                         <div className={styles.avatar}>
                           <img alt="" src={Office} />

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./home.module.scss";
 import Card from "../../components/Card/card";
 import IsAdmin, {
@@ -10,24 +10,19 @@ import IsAdmin, {
   IsAuth,
 } from "../../actions/action";
 import Loading from "../../components/Loading/loading";
-import { useCookies } from "react-cookie";
 export default function Home() {
   const [userData, setUserData] = useState(false);
   const [announcementsData, setAnnouncementsData] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [newMessagesData, setNewMessagesData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [cookies, setCookies, removeCookies] = useCookies();
   const token = GetToken();
 
   console.log("userdata: ", userData);
   useEffect(() => {
     if (IsAuth(token)) {
       if (!userData) {
-        setLoading(true);
         GetUser(token)
           .then((data) => {
-            setLoading(false);
             IsAdmin(data);
             setUserData(data);
             setUserRole(data.data.data.role);
@@ -37,11 +32,9 @@ export default function Home() {
                 data.data.data.studentInfo?.class._id
               )
                 .then((data) => {
-                  setLoading(false);
                   setAnnouncementsData(data);
                 })
                 .catch((e) => {
-                  setLoading(false);
                   console.error(e);
                 });
             } else if (
@@ -50,24 +43,18 @@ export default function Home() {
             ) {
               GetAnnouncements(100, 1, token)
                 .then((data) => {
-                  setLoading(false);
                   setAnnouncementsData(data);
                 })
                 .catch((e) => {
-                  setLoading(false);
                   console.error(e);
                 });
             }
             GetNewMessages(token).then((data) => {
-              setLoading(false);
               setNewMessagesData(data);
             });
           })
-          .then(() => {
-            setLoading(false);
-          })
+          .then(() => {})
           .catch((e) => {
-            setLoading(false);
             console.error(e);
           });
       }

@@ -4,15 +4,6 @@ const uri = "https://gelisim.herokuapp.com/api/v1";
 const location = window.location;
 
 export async function GetAuthentication(username, password) {
-  // axios
-  //   .post("https://gelisim-okullari.herokuapp.com/api/v1/auth/login", {
-  //     username: username,
-  //     password: password,
-  //   })
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     return data;
-  //   });
   const response = await fetch(`${uri}/auth/login`, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
@@ -89,7 +80,7 @@ export async function GetUser(token) {
   return response;
 }
 export function GetToken() {
-  const [cookies, setCookies] = useCookies(["token"]);
+  const [cookies] = useCookies(["token"]);
   return cookies.token;
 }
 
@@ -199,7 +190,9 @@ export function getAllUser(token, fullName) {
     headers: { authorization: `Bearer ${token}` },
   };
   const response = axios.get(
-    `${uri}/users${fullName ? `?fullName=${fullName}` : ""}`,
+    `${uri}/users?role=instructor&limit=100&page=1&${
+      fullName ? `?fullName=${fullName}` : ""
+    }`,
     config
   );
   return response;
@@ -447,16 +440,6 @@ export async function SaveSpecificApps(token, data) {
   return response;
 }
 export async function GetConversations(userId, token) {
-  // let baseUrl = config.baseUrl;
-  // let tokenCookieName = "token";
-  // let path = `/chat/conversation`;
-
-  // return await http.makeGetRequest(
-  //   path,
-  //   baseUrl,
-  //   tokenCookieName,
-  //   errorMessageBuilder
-  // );
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
@@ -470,67 +453,24 @@ export async function GetNewMessages(token) {
 }
 
 export async function GetMessageDetails(conversationID, token) {
-  // let baseUrl = config.baseUrl;
-  // let tokenCookieName = "token";
-  // let path = `/chat/conversation/${conversationID}`;
-
-  // return await http.makeGetRequest(
-  //   path,
-  //   baseUrl,
-  //   tokenCookieName,
-  //   errorMessageBuilder
-  // );
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
   return await axios.get(`${uri}/chat/conversation/${conversationID}`, config);
 }
 export async function SendMessage({ payload, token }) {
-  // let baseUrl = config.baseUrl;
-  // let tokenCookieName = "token";
-  // let path = `/chat/conversation/${conversationID}`;
-  // let payload = { receiver, body, attachements };
-
-  // return await http.makePostRequest(
-  //   path,
-  //   baseUrl,
-  //   tokenCookieName,
-  //   payload,
-  //   errorMessageBuilder
-  // );
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
   return await axios.post(`${uri}/chat/conversation/`, payload, config);
 }
 export async function CreateNewChat(payload, token) {
-  // let baseUrl = config.baseUrl;
-  // let tokenCookieName = "token";
-  // let path = `/chat/conversation`;
-
-  // return await http.makePostRequest(
-  //   path,
-  //   baseUrl,
-  //   tokenCookieName,
-  //   payload,
-  //   errorMessageBuilder
-  // );
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
   return await axios.post(`${uri}/chat/conversation/`, payload, config);
 }
 export async function SearchChat({ keyword, token }) {
-  // let baseUrl = config.baseUrl;
-  // let tokenCookieName = "token";
-  // let path = `/chat/search?keyword=${keyword}`;
-
-  // return await http.makeGetRequest(
-  //   path,
-  //   baseUrl,
-  //   tokenCookieName,
-  //   errorMessageBuilder
-  // );
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };

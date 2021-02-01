@@ -1,13 +1,8 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import styles from "./activity.module.scss";
 import TeacherAvatar from "../../../../assets/images/teacherAvatar.png";
 import { Ders, User } from "../../../../icons";
-import Modal from "../../../Modal/modal";
-import Input from "../../../Input/input";
-import Button from "../../../Button/button";
-import { CreateUser, GetToken, updateUser } from "../../../../actions/action";
 import { useHistory } from "react-router-dom";
-import { SingleUserContext } from "../../../../context/singleUserContext";
 
 export default function ActivityManagement({
   tabsType,
@@ -15,7 +10,6 @@ export default function ActivityManagement({
   studentsData,
   classData,
 }) {
-  const [classId, setClassId] = useState(false);
   const history = useHistory();
 
   return (
@@ -50,9 +44,8 @@ export default function ActivityManagement({
               ? studentsData.map((item, index) => {
                   return (
                     <tr
+                      key={index}
                       onClick={() => {
-                        setClassId(item._id);
-
                         history.push(`/admin/activity/${item._id}`);
                       }}
                     >
@@ -75,12 +68,11 @@ export default function ActivityManagement({
                   );
                 })
               : tabsType === "teacher"
-              ? teachersData.map((item) => {
+              ? teachersData.map((item, index) => {
                   return (
                     <tr
+                      key={index}
                       onClick={() => {
-                        setClassId(item._id);
-
                         history.push(`/admin/activity/${item._id}`);
                       }}
                     >
@@ -95,11 +87,11 @@ export default function ActivityManagement({
                     </tr>
                   );
                 })
-              : classData.map((item) => {
+              : classData.map((item, index) => {
                   return (
                     <tr
+                      key={index}
                       onClick={() => {
-                        setClassId(item._id ? item._id : item.id);
                         history.push(`/admin/activity/${item._id}?class=true`);
                       }}
                     >

@@ -93,7 +93,6 @@ function RenderCard({ pathname, announcementsData }) {
   const [filteredClass, setFilteredClass] = useState(false);
   const [appData, setAppData] = useState([]);
   const history = useHistory();
-  console.log(pathname.includes("/admin/user/teacher"));
   window.onclick = function (e) {
     if (e.target !== dropdownNames && e.target !== dropdownIcon) {
       setDropdownActive(false);
@@ -151,22 +150,20 @@ function RenderCard({ pathname, announcementsData }) {
     getAllStudents(token)
       .then((data) => {
         setStudentsData(data.data.data);
-        console.log("studentTotal:", data.data.total);
         setTotalStudent(data.data.total);
       })
       .then(() => setLoading(false))
-      .catch((e) => {
+      .catch(() => {
         setLoading(false);
         alert("Kullanıcılar Getirilemedi");
       });
     getAllTeachers(token)
       .then((data) => {
         setTeachersData(data.data.data);
-        console.log("teacherTotal:", data.data.total);
         setTotalTeacher(data.data.total);
       })
       .then(() => setLoading(false))
-      .catch((e) => {
+      .catch(() => {
         setLoading(false);
         alert("Kullanıcılar Getirilemedi");
       });
@@ -176,7 +173,7 @@ function RenderCard({ pathname, announcementsData }) {
         setClassData(data.data.data);
       })
       .then(() => setLoading(false))
-      .catch((e) => {
+      .catch(() => {
         setLoading(false);
         alert("Sınıflar Getirilemedi");
       });
@@ -245,9 +242,10 @@ function RenderCard({ pathname, announcementsData }) {
                 }`}
                 onClick={() => {}}
               >
-                {ClassesNameData.map((item) => {
+                {ClassesNameData.map((item, index) => {
                   return (
                     <div
+                      key={index}
                       onClick={() => {
                         const res = classData.filter((item1) => {
                           return item1.name
@@ -341,7 +339,7 @@ function RenderCard({ pathname, announcementsData }) {
                       );
                     })
                     .then(() => setLoading(false))
-                    .catch((e) => {
+                    .catch(() => {
                       setLoading(false);
                       alert("Kullanıcılar Getirilemedi");
                     });
@@ -357,7 +355,7 @@ function RenderCard({ pathname, announcementsData }) {
                       );
                     })
                     .then(() => setLoading(false))
-                    .catch((e) => {
+                    .catch(() => {
                       setLoading(false);
                       alert("Kullanıcılar Getirilemedi");
                     });
@@ -426,7 +424,7 @@ function RenderCard({ pathname, announcementsData }) {
                     );
                   })
                   .then(() => setLoading(false))
-                  .catch((e) => {
+                  .catch(() => {
                     setLoading(false);
                     alert("Kullanıcılar Getirilemedi");
                   });
@@ -442,7 +440,7 @@ function RenderCard({ pathname, announcementsData }) {
                     );
                   })
                   .then(() => setLoading(false))
-                  .catch((e) => {
+                  .catch(() => {
                     setLoading(false);
                     alert("Kullanıcılar Getirilemedi");
                   });
@@ -519,7 +517,7 @@ function RenderCard({ pathname, announcementsData }) {
                     );
                   })
                   .then(() => setLoading(false))
-                  .catch((e) => {
+                  .catch(() => {
                     setLoading(false);
                     alert("Kullanıcılar Getirilemedi");
                   });
@@ -535,7 +533,7 @@ function RenderCard({ pathname, announcementsData }) {
                     );
                   })
                   .then(() => setLoading(false))
-                  .catch((e) => {
+                  .catch(() => {
                     setLoading(false);
                     alert("Kullanıcılar Getirilemedi");
                   });
@@ -563,9 +561,10 @@ function RenderCard({ pathname, announcementsData }) {
               }`}
               onClick={() => {}}
             >
-              {ClassesNameData.map((item) => {
+              {ClassesNameData.map((item, index) => {
                 return (
                   <div
+                    key={index}
                     onClick={() => {
                       history.push(
                         `/admin/apps/${item.name.slice(
@@ -652,19 +651,3 @@ const ClassesNameData = [
     name: "12. Sınıflar",
   },
 ];
-// function onSearchTextChange(value) {
-//   this.setState((state) => {
-//     if (value) {
-//       state.filteredStaticData = staticData.filter((el) =>
-//         `${el.name} ${el.title}`.includes(value)
-//       );
-//     } else {
-//       if (state.searchText) {
-//         state.filteredStaticData = staticData;
-//       }
-//     }
-
-//     state.searchText = value;
-//     return state;
-//   });
-// }

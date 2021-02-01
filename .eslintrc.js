@@ -1,0 +1,35 @@
+module.exports = {
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+  },
+  extends: ["eslint:recommended", "plugin:react/recommended"],
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 2020,
+    sourceType: "module",
+  },
+  parser: "babel-eslint",
+  plugins: ["react"],
+  rules: {
+    "react/prop-types": 0,
+    "jsx-a11y/alt-text": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "object-curly-newline": "off",
+    "no-confusing-arrow": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "no-useless-return": "off",
+    "arrow-body-style": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/destructuring-assignment": "off",
+    "react/prop-types": "off",
+    "arrow-parens": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "import/prefer-default-export": "off",
+  },
+};

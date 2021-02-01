@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import styles from "./dragDrop.module.scss";
 import { useDropzone } from "react-dropzone";
-import { GetToken, importSchedule, uploadFile } from "../../../actions/action";
+import { GetToken, importSchedule } from "../../../actions/action";
 import Button from "../../Button/button";
-import axios from "axios";
 import { FileContext } from "../../../context/fileContext";
-export default function DropzoneField({ isActive, setIsActive, classId }) {
+export default function DropzoneField({ setIsActive, classId }) {
   const [fileData, setFileData] = useContext(FileContext);
   const {
     acceptedFiles,
@@ -105,7 +104,7 @@ export default function DropzoneField({ isActive, setIsActive, classId }) {
           console.log("dsadsa", formdata);
           importSchedule(token, formdata, classId)
             .then((data) => console.log(data))
-            .catch((e) =>
+            .catch(() =>
               alert(
                 "Gönderilen dosya formatı yanlış. Lütfen standart dosya yüklemesi yapınız."
               )

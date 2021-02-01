@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import styles from "./login.module.scss";
 import LoginImages from "../../assets/images/loginBackground.jpg";
-import TeacherLoginImages from "../../assets/images/teacher.jpg";
-import AdminLoginImages from "../../assets/images/admin.jpg";
 import LoginLogoSmall from "../../assets/icons/loginLogo.svg";
 import Input from "../../components/Input/input";
 import { IconLock, IconUser, LoginLogo } from "../../icons";
@@ -12,16 +10,14 @@ import { Link } from "react-router-dom";
 import IsAdmin, { GetAuthentication, GetUser } from "../../actions/action";
 import { TokenContext } from "../../context/tokenContext";
 import { useCookies } from "react-cookie";
-import { UserContext } from "../../context/userContext";
 import Loading from "../../components/Loading/loading";
 import { useLocation, useHistory } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import ChromeIcon from "../../assets/icons/chrome-brands.svg";
-export default function Login({}) {
+export default function Login() {
   const [rememberUser, setRememberUser] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [userData, setUserData] = useContext(UserContext);
   const [token, setToken] = useContext(TokenContext);
   const [cookies, setCookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(false);
@@ -97,15 +93,11 @@ function RenderLoginMethod({
   setPassword,
   rememberUser,
   setRememberUser,
-  cookies,
-  loading,
   setLoading,
   setCookies,
   errorMessage,
   setErrorMessage,
-  token,
   setToken,
-  children,
 }) {
   const { pathname } = useLocation();
   const history = useHistory();
@@ -194,7 +186,7 @@ function RenderLoginMethod({
                 }
               })
 
-              .catch((e) => {
+              .catch(() => {
                 setLoading(false);
                 setErrorMessage("E-posta,telefon veya şifre yanlış");
               });
