@@ -6,7 +6,6 @@ import styles from "./subBar.module.scss";
 export default function SubBar({ isActive }) {
   const pathname = useLocation().pathname;
   const history = useHistory();
-  console.log(pathname);
   return (
     <div
       id={"subBar"}

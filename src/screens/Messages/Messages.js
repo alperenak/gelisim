@@ -43,7 +43,6 @@ class Messages extends Component {
     let gettedUserId = GetUserId(getCookie("token"));
     const userId = this.props.match.params.id;
     this.setState({ path: path[1], userId: userId });
-    console.log(this.state.userId);
     let res = await GetConversations(gettedUserId, getCookie("token"));
     this.setState({ messages: res.data.data });
     GetUser(getCookie("token")).then((data) => {
@@ -160,7 +159,6 @@ class Messages extends Component {
           <div className={styles.usersContainer}>
             {userData && userData.length !== 0
               ? userData.map((item, index) => {
-                  console.log(item);
                   return (
                     <div className={styles.teachersLabel} key={index}>
                       <div className={styles.avatar}>
@@ -322,7 +320,6 @@ class Messages extends Component {
 
   render() {
     let { messages } = this.state;
-    console.log(this.state.messages);
 
     return (
       <div className={styles.Wrapper}>

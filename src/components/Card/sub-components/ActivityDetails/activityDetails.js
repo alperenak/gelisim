@@ -4,7 +4,6 @@ import { Ders, User } from "../../../../icons";
 import { ConvertDate, convertHourMinute } from "../../../../utils/utils";
 import {
   GetToken,
-  GetAllApps,
   GetGeneralLogs,
   GetDetailLogs,
   GetUserInformations,
@@ -34,7 +33,6 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
     if (query.get("class")) {
       GetClassLogs(token, id, convertedDropdownValue)
         .then((data) => {
-          console.log("classData", data.data.data);
           setLogData(data.data.data.logs);
           setLaoding(false);
         })
@@ -53,9 +51,6 @@ export default function ActivityDetails({ tabsType, convertedDropdownValue }) {
         setLogsDetailData(data.data.data.logs);
       });
     }
-    GetAllApps(token).then((item) => {
-      console.log(item);
-    });
   }, [convertedDropdownValue]);
   return (
     <>

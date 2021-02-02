@@ -110,9 +110,7 @@ function RenderCard({ pathname, announcementsData }) {
   function onChangeUserManagementSearch(e) {
     if (tabsType === "teacher") {
       if (e.target.value.length >= 2) {
-        getAllUser(token, e.target.value).then((data) => {
-          console.log("full", data.data.data);
-        });
+        getAllUser(token, e.target.value);
       }
     } else if (tabsType === "student") {
       const res = studentsData.filter((state) => {

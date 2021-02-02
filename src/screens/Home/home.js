@@ -17,7 +17,6 @@ export default function Home() {
   const [newMessagesData, setNewMessagesData] = useState([]);
   const token = GetToken();
 
-  console.log("userdata: ", userData);
   useEffect(() => {
     if (IsAuth(token)) {
       if (!userData) {
@@ -165,10 +164,8 @@ function getClassName(name) {
 
 function getSyllabusData(data) {
   if (data.studentInfo && data.studentInfo.class) {
-    console.log("ogrenci datasi var");
     return data.studentInfo.class.schedule;
   } else if (data.instructorInfo && data.instructorInfo.classes) {
-    console.log("ogretmen datasi var");
     return data.instructorInfo.schedule;
   } else return [];
 }

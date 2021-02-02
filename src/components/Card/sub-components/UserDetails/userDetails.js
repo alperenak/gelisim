@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  getAllClass,
   GetSpecifiApps,
   GetToken,
   GetUserAppPassword,
@@ -8,7 +7,6 @@ import {
   UpdateUserAppPassword,
   UpdateUserInfo,
   AddNewApp,
-  UpdateUserPassword,
 } from "../../../../actions/action";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
@@ -66,17 +64,10 @@ export default function UserDetail({ tabsType }) {
   const [payload, setPayload] = useState({});
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [modalType, setModalType] = useState("");
-  const [existedAppData, setExistedAppData] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [errorMessage, setErrorMessage] = useState(false);
   const userId = params.id;
-  console.log(
-    firstName,
-    lastName,
-    oldClassName,
-    className,
-    school,
-    schoolNumber
-  );
+
   useEffect(() => {
     GetUserInformations(token, params.id)
       .then((data) => {
@@ -123,7 +114,7 @@ export default function UserDetail({ tabsType }) {
             .then((fetchAppData) => {
               setAllAppsData(fetchAppData);
             })
-            .catch((e) => console.log(e));
+            .catch((e) => console.error(e));
         }
       })
       .catch((e) => {
@@ -268,8 +259,7 @@ export default function UserDetail({ tabsType }) {
                   id: params.id,
                 };
                 UpdateUserInfo(token, params.id, payload)
-                  .then((data) => {
-                    console.log(data.data);
+                  .then(() => {
                     setLoading(false);
                     alert("Başarı ile kaydedildi");
                   })
@@ -292,8 +282,7 @@ export default function UserDetail({ tabsType }) {
                   id: params.id,
                 };
                 UpdateUserInfo(token, params.id, payload)
-                  .then((data) => {
-                    console.log(data.data);
+                  .then(() => {
                     setLoading(false);
                     alert("Başarı ile kaydedildi");
                   })
@@ -327,9 +316,9 @@ export default function UserDetail({ tabsType }) {
             </div>
             <div className={styles.renderApps}>
               {appPasswordData && appPasswordData.length !== 0
-                ? appPasswordData.map((item) => {
+                ? appPasswordData.map((item, index) => {
                     return (
-                      <div className={styles.renderAppRow}>
+                      <div key={index} className={styles.renderAppRow}>
                         <div className={styles.appAvatarWrapper}>
                           <div className={styles.appAvatar}>
                             <RenderIcon
@@ -410,19 +399,6 @@ export function RenderModalContent({
     return item.app.name;
   });
   const token = GetToken();
-  console.log(convertingApp);
-  console.log(
-    allApps
-      .filter((item) => {
-        return !convertingApp.includes(item.app.name);
-      })
-      .map((item) => {
-        return {
-          value: item.app.title,
-          id: item.app.id ? item.app.id : item.app._id,
-        };
-      })[0]?.value
-  );
 
   if (modalType === "add") {
     return (
@@ -568,7 +544,6 @@ export function RenderModalContent({
 }
 export function RenderIcon(props) {
   let { iconName } = props;
-  console.log(iconName);
   if (iconName === "office365") {
     return <img src={Office} {...props} className={styles.office} />;
   } else if (iconName === "khanAcademy") {
@@ -605,21 +580,3 @@ export function RenderIcon(props) {
     return <img src={Zoom} {...props} className={styles.actively} />;
   } else return "none";
 }
-let ad = {
-  studentInfo: {
-    class: { _id: "5fc06aafd08c505e12fe4ba4", name: "9 6. GRUP" },
-    studentNumber: 357,
-    school: "FEN LİSESİ",
-  },
-  _id: "5fc06ca7d08c505e12fec811",
-  fullName: "DURU NALBAT",
-  first_name: "DURU",
-  last_name: "NALBAT",
-  username: "duru.nalbat@gelisimkoleji.k12.tr",
-  createdAt: "2021-01-14T21:44:07.801Z",
-  __v: 0,
-  assignedClass: "5fc06ac4d08c505e12fe54dc",
-  profile_photo:
-    "https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png",
-  id: "5fc06ca7d08c505e12fec811",
-};

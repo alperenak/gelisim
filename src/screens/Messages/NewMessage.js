@@ -27,7 +27,6 @@ class NewMessage extends Component {
 
   onFileChange = async (file) => {
     await this.setState({ files: { ...this.state.files, file } });
-    console.log(this.state.files);
   };
 
   onChange = async (e) => {

@@ -5,7 +5,7 @@ import { convertHourMinute } from "../../utils/utils";
 import "./message.scss";
 
 const Message = ({ image, title, content, time, id, unread }) => {
-  const [unreadMessages] = useState("bold");
+  const [unreadMessages, setUnreadMessages] = useState("bold");
 
   return (
     <div

@@ -8,7 +8,6 @@ export default function Selectable({
   value,
 }) {
   const [dropdownActive, setDropdownActive] = useState(false);
-  console.log(dropdownData);
   const [dropdownValue, setDrodownValue] = useState(
     value ? value : dropdownData[0]?.value
   );
