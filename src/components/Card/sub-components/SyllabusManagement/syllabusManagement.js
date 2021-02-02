@@ -13,7 +13,6 @@ import {
 } from "../../../../actions/action";
 import Card from "../../card";
 import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
-import { useDropzone } from "react-dropzone";
 import { FileContext } from "../../../../context/fileContext";
 import Loading from "../../../Loading/loading";
 export default function SyllabusManagement() {
@@ -22,16 +21,13 @@ export default function SyllabusManagement() {
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
   const [teachersData] = useState([]);
-  const { acceptedFiles } = useDropzone({ noClick: true });
   const [fileData] = useContext(FileContext);
   const [loading, setLoading] = useState(false);
   const token = GetToken();
-  console.log(acceptedFiles);
   useEffect(() => {
     setLoading(true);
     getAllClass(token, 100, 1, "name,grade").then((data) => {
       setClassData(data.data.data);
-      console.log("sinif", data);
       setLoading(false);
     });
   }, []);

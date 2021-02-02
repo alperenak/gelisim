@@ -8,7 +8,6 @@ export default function Pagination({ totalCount, selectedPage, onClick }) {
   const [rightDisable, setRightDisable] = useState(false);
   const [leftDisable, setLeftDisable] = useState(true);
 
-  console.log("selectedPage:", selectedPage);
   useEffect(() => {
     setSelectedCircle(selectedPage);
   }, [selectedPage]);
@@ -77,14 +76,10 @@ export default function Pagination({ totalCount, selectedPage, onClick }) {
 }
 
 function makeArray(count) {
-  console.log("count:", count);
-
   let arr = [];
   if (count !== 0) {
     for (let i = 1; i <= count; i++) arr.push(i);
   }
-
-  console.log("arr:", arr);
 
   return arr;
 }

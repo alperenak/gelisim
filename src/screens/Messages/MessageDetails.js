@@ -101,8 +101,7 @@ class MessageDetails extends Component {
   };
 
   render() {
-    let { sender, singleMessages } = this.state;
-    console.log(singleMessages);
+    let { sender } = this.state;
     return (
       <div className={styles.MessagesDetailWrapper}>
         <div className={styles.messageDetailsContainer}>

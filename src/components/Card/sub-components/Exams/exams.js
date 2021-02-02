@@ -486,13 +486,6 @@ function RenderModalContent({
           type={"modal"}
           title={"Ekle"}
           onClick={() => {
-            console.log(
-              year,
-              months[months.indexOf(monthName)],
-              dayName,
-              hourDropdown,
-              minDropdown
-            );
             const d = new Date(
               year,
               months.indexOf(monthName),

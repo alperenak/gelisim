@@ -9,7 +9,6 @@ export default function Selectbox({ onChange, dataToArray = [] }) {
   const [dropdownArray, setDropdownArray] = useState([]);
   const token = GetToken();
   const [ClassesNameData, setClassNameData] = useState([]);
-  console.log("tooo", dropdownArray);
 
   useEffect(() => {
     if (dataToArray && dataToArray.length !== 0) {

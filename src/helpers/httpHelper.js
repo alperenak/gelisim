@@ -155,7 +155,6 @@ export default {
     onCancelTokenAdded = () => {}
   ) {
     let token = "Bearer " + getCookie(tokenCookieName);
-    console.log(additionHeaders);
     const headers = {
       "Content-Type": "application/json",
       Authorization: token,

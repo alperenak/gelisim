@@ -25,14 +25,9 @@ export default function ClassManagement({ filterClass, classData }) {
   const [classId, setClassId] = useState(false);
   const [teachersData, setTeachersData] = useState([]);
   const token = GetToken();
-  console.log(filterClass);
   useEffect(() => {
     getAllUser(token).then((data) => {
       setTeachersData(
-        data.data.data.filter((item) => item.role === "instructor")
-      );
-      console.log(
-        "user",
         data.data.data.filter((item) => item.role === "instructor")
       );
     });
@@ -132,7 +127,6 @@ export default function ClassManagement({ filterClass, classData }) {
 }
 
 function RenderModalContent({ type, setIsActive, classId, teachersData }) {
-  console.log(classId);
   const [updatingClassName, setUpdatingClassName] = useState("");
   const [dropdownActive, setDropdownActive] = useState("");
   const [dropdownName, setDropdownName] = useState("Öğretmen Seçiniz");

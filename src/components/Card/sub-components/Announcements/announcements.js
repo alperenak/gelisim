@@ -31,7 +31,6 @@ export default function Announcements({ announcementsData, isAdmin }) {
   const [isPublic, setIsPublic] = useState(false);
   const [deletedId, setDeletedId] = useState("");
   const { pathname } = useLocation();
-  console.log("gelenAnon", announcementsData);
   return (
     <>
       <RenderModal
@@ -299,7 +298,6 @@ function RenderModal({
             <Selectbox
               dataToArray={classArrayPopulate}
               onChange={(e) => {
-                console.log(e);
                 setUpdatingSelectbox(e);
               }}
             />
@@ -321,14 +319,7 @@ function RenderModal({
                     : classArray,
                   isPublic,
                   token
-                )
-                  .then(
-                    () => {
-                      // window.location.reload();
-                    }
-                    // GetAnnouncements(token)
-                  )
-                  .catch((e) => console.log(e));
+                ).catch((e) => console.error(e));
                 setIsActive(false);
               }
               if (editableTitle.length < 8) {

@@ -35,7 +35,6 @@ export default function Login() {
       } else if (!cookies.admin) window.location.replace("/home");
     }
   });
-  console.log(token);
 
   return (
     <>
@@ -156,7 +155,6 @@ function RenderLoginMethod({
                 if (data.success) {
                   setLoading(false);
                   setErrorMessage(false);
-                  console.log(data.data.token);
                   const tokenData = jwt_decode(data.data.token);
                   if (tokenData.role === "admin" && pathname !== "/admin") {
                     setErrorMessage("E-posta,telefon veya şifre yanlış");

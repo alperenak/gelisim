@@ -11,7 +11,6 @@ export default function ActivityManagement({
   classData,
 }) {
   const history = useHistory();
-
   return (
     <>
       <div className={styles.schedule}>

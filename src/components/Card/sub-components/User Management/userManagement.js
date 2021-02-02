@@ -28,7 +28,6 @@ export default function UserManagement({
   const [classId, setClassId] = useState(false);
   const history = useHistory();
   const token = GetToken();
-  console.log("general", studentsData);
 
   return (
     <div className={styles.schedule}>
@@ -94,7 +93,6 @@ export default function UserManagement({
                     </td>
                     <td className={styles.space}></td>
                     <td className={styles.space}>
-                      x
                       <TrashSolid
                         onClick={() => {
                           deleteUser(token, item._id);
@@ -153,7 +151,6 @@ export default function UserManagement({
 }
 
 function RenderModalContent({ type, setIsActive, classId, tabsType }) {
-  console.log(classId);
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");

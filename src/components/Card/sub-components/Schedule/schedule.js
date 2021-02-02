@@ -19,10 +19,15 @@ import {
   GetSchedulesPdfDownloadLink,
   GetToken,
 } from "../../../../actions/action";
+
 export default function Schedule({ scheduleData, teachersData, classInfo }) {
   const token = GetToken();
   const d = new Date();
-
+  const [tablePagination] = useState([
+    { start: 0, end: 2 },
+    { start: 2, end: 4 },
+    { start: 4, end: 5 },
+  ]);
   const [schedulePageNum, setSchedulePageNum] = useState(1);
   const staticTitleData = [
     {
@@ -85,6 +90,7 @@ export default function Schedule({ scheduleData, teachersData, classInfo }) {
         <RenderResponsiveTitles
           titleData={staticTitleData}
           schedulePageNum={schedulePageNum}
+          tablePagination={tablePagination}
         />
         <table className={styles.scheduleTitlesTable}>
           <tr className={styles.scheduleTitlesRow}>
@@ -189,7 +195,7 @@ function getTeacherAvatar(teachersData, code) {
   } else return teacherAvatar;
 }
 function RenderResponsiveTitles({
-  titleData,
+  titleData = [],
   schedulePageNum,
   tablePagination,
 }) {
@@ -203,7 +209,7 @@ function RenderResponsiveTitles({
           )
           .map((item, index) => {
             return (
-              <div key={index} className={styles.scheduleTitles}>
+              <div className={styles.scheduleTitles} key={index}>
                 {item.icon}
                 <td className={item.titleStyle}>{item.title}</td>
               </div>

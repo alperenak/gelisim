@@ -16,8 +16,6 @@ import {
   GetToken,
 } from "../../../../actions/action";
 export default function Syllabus({ syllabusData, classInfo }) {
-  console.log("syllabu", syllabusData);
-  console.log("classInfo", classInfo);
   const [tablePagination] = useState([
     { start: 0, end: 2 },
     { start: 2, end: 4 },
@@ -287,13 +285,10 @@ function findDayNumber(day) {
   const nowDayNumber = d.getDay();
   const spaceDayNonAbs = nowDayNumber - propDayNumber;
   const dayCount = d.getDate();
-  console.log(spaceDayNonAbs);
   if (spaceDayNonAbs > 0) {
-    console.log("çıkarma kısmında");
     return subtractNowDay(spaceDayNonAbs);
   } else if (spaceDayNonAbs === 0) return dayCount;
   else if (spaceDayNonAbs < 0) {
-    console.log("toplama kisminda");
     return sumNowDay(spaceDayNonAbs);
   }
 }
@@ -310,9 +305,7 @@ function sumNowDay(num) {
   const nowMonthName = months[d.getMonth()];
   const dayCount = d.getDate();
   const result = dayCount - num;
-  console.log("result", result, getMonthNumber(nowMonthName));
   if (result > getMonthNumber(nowMonthName)) {
-    console.log(result, getMonthNumber(nowMonthName));
     return result - getMonthNumber(nowMonthName);
   } else return result;
 }
