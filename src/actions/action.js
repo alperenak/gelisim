@@ -27,7 +27,6 @@ export async function UpdateAnnouncements(
   isPublic,
   token
 ) {
-  console.log("id", to);
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
@@ -190,9 +189,7 @@ export function getAllUser(token, fullName) {
     headers: { authorization: `Bearer ${token}` },
   };
   const response = axios.get(
-    `${uri}/users?role=instructor&limit=100&page=1&${
-      fullName ? `?fullName=${fullName}` : ""
-    }`,
+    `${uri}/users${fullName ? `?fullName=${fullName}` : ""}`,
     config
   );
   return response;
@@ -285,7 +282,6 @@ export async function importSchedule(token, file, classId) {
       "content-type": "multipart/form-data",
     },
   };
-  console.log("gelen", file);
 
   const response = await axios.put(
     `${uri}/classes/${classId}/schedule`,

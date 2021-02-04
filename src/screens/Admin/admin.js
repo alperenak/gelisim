@@ -76,7 +76,7 @@ function RenderCard({ pathname, announcementsData }) {
   );
   const [loading, setLoading] = useState(false);
   const [display, setDisplay] = useState("");
-  const [displayTeacher] = useState("");
+  const [displayTeacher, setDisplayTeacher] = useState("");
   const [displayStudent, setDisplayStudent] = useState("");
   const [displayClass, setDisplayClass] = useState("");
   const [selectedClass] = useState("");
@@ -108,19 +108,32 @@ function RenderCard({ pathname, announcementsData }) {
     else setDisplay(res);
   }
   function onChangeUserManagementSearch(e) {
-    if (tabsType === "teacher") {
-      if (e.target.value.length >= 2) {
-        getAllUser(token, e.target.value);
-      }
-    } else if (tabsType === "student") {
-      const res = studentsData.filter((state) => {
-        const name = `${state.first_name} ${state.last_name}`;
-        return e.target.value
-          ? name.toLowerCase().includes(e.target.value.toLowerCase())
-          : "";
+    const targetVal = e.target.value;
+    if (!targetVal) {
+      setDisplayStudent(studentsData);
+      setDisplayTeacher(teachersData);
+    }
+    if (
+      e.target.value.length >= 2 &&
+      (tabsType === "student" || tabsType === "teacher")
+    ) {
+      getAllUser(token, e.target.value).then((data) => {
+        if (targetVal) {
+          if (tabsType === "student") setDisplayStudent(data.data.data);
+          else if (tabsType === "teacher") setDisplayTeacher(data.data.data);
+        } else if (tabsType === "teacher") setDisplayTeacher(teachersData);
+        else if (tabsType === "student") setDisplayStudent(studentsData);
       });
-      if (e.target.value === "") setDisplayStudent("");
-      else setDisplayStudent(res);
+    } else if (
+      (targetVal.length <= 2 || !targetVal || targetVal === "") &&
+      (tabsType === "student" || tabsType === "teacher")
+    ) {
+      if (tabsType === "student") setDisplayStudent(studentsData);
+      else if (tabsType === "teacher") setDisplayTeacher(teachersData);
+      else {
+        setDisplayStudent(studentsData);
+        setDisplayTeacher(teachersData);
+      }
     } else if (tabsType === "class") {
       const res = classData.filter((state) => {
         const name = state.name;
@@ -130,6 +143,9 @@ function RenderCard({ pathname, announcementsData }) {
       });
       if (e.target.value === "") setDisplayClass("");
       else setDisplayClass(res);
+    } else {
+      setDisplayTeacher(teachersData);
+      setDisplayStudent(studentsData);
     }
   }
 
