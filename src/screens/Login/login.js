@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./login.module.scss";
 import LoginImages from "../../assets/images/loginBackground.jpg";
 import LoginLogoSmall from "../../assets/icons/loginLogo.svg";
@@ -8,7 +8,6 @@ import Button from "../../components/Button/button";
 import CheckBox from "../../components/CheckBox/checkbox";
 import { Link } from "react-router-dom";
 import IsAdmin, { GetAuthentication, GetUser } from "../../actions/action";
-import { TokenContext } from "../../context/tokenContext";
 import { useCookies } from "react-cookie";
 import Loading from "../../components/Loading/loading";
 import { useLocation, useHistory } from "react-router-dom";
@@ -18,7 +17,7 @@ export default function Login() {
   const [rememberUser, setRememberUser] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useContext(TokenContext);
+  const [token, setToken] = useState("");
   const [cookies, setCookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);

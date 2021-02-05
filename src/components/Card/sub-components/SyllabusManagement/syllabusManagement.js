@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./syllabusManagement.module.scss";
 import { Download, TrashSolid, Down, UploadSolid } from "../../../../icons";
 import Modal from "../../../Modal/modal";
@@ -13,7 +13,6 @@ import {
 } from "../../../../actions/action";
 import Card from "../../card";
 import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
-import { FileContext } from "../../../../context/fileContext";
 import Loading from "../../../Loading/loading";
 export default function SyllabusManagement() {
   const [classData, setClassData] = useState(false);
@@ -21,7 +20,6 @@ export default function SyllabusManagement() {
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
   const [teachersData] = useState([]);
-  const [fileData] = useContext(FileContext);
   const [loading, setLoading] = useState(false);
   const token = GetToken();
   useEffect(() => {
@@ -150,7 +148,6 @@ export default function SyllabusManagement() {
               type={modalType}
               classId={classId}
               teachersData={teachersData}
-              fileData={fileData}
             />
           </Modal>
         </div>

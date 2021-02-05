@@ -1,8 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import SideBar from "../../components/Sidebar/sidebar";
 import styles from "./admin.module.scss";
 import Card from "../../components/Card/card";
-import { UserContext } from "../../context/userContext";
 import {
   GetToken,
   IsAuth,
@@ -25,7 +24,7 @@ import Pagination from "../../components/Pagination/pagination";
 export default function Admin() {
   const [announcementsData, setAnnouncementsData] = useState(false);
   const [newAnnouncementsData, setNewAnnouncementsData] = useState([]);
-  const [userData, setUserData] = useContext(UserContext);
+  const [userData, setUserData] = useState([]);
   const [cookies] = useCookies(false);
   const token = GetToken();
   const { pathname } = useLocation();
@@ -324,61 +323,66 @@ function RenderCard({ pathname, announcementsData }) {
               </div>
             </div>
           </div>
+
           <Card
             teachersData={displayTeacher === "" ? teachersData : displayTeacher}
             studentsData={displayStudent === "" ? studentsData : displayStudent}
             type={"userManagement"}
             tabsType={tabsType}
           />
-          {totalStudent !== 0 || totalTeacher !== 0 ? (
-            <Pagination
-              totalCount={
-                tabsType === "student"
-                  ? Number((totalStudent / 100).toFixed())
-                  : tabsType === "teacher"
-                  ? Number((totalTeacher / 100).toFixed())
-                  : ""
-              }
-              selectedPage={userPageNum}
-              onClick={(pageNum) => {
-                if (tabsType === "student") {
-                  setLoading(true);
-                  getAllStudents(token, pageNum)
-                    .then((data) => {
-                      setStudentsData(data.data.data);
-                      setUserPageNum(
-                        data.data.pagination.next.page !== null
-                          ? data.data.pagination.next.page - 1
-                          : data.data.pagination.next.previous + 1
-                      );
-                    })
-                    .then(() => setLoading(false))
-                    .catch(() => {
-                      setLoading(false);
-                      alert("Kullanıcılar Getirilemedi");
-                    });
-                } else if (tabsType === "teacher") {
-                  setLoading(true);
-                  getAllTeachers(token, pageNum)
-                    .then((data) => {
-                      setTeachersData(data.data.data);
-                      setUserPageNum(
-                        data.data.pagination.next.page !== null
-                          ? data.data.pagination.next.page - 1
-                          : data.data.pagination.next.previous + 1
-                      );
-                    })
-                    .then(() => setLoading(false))
-                    .catch(() => {
-                      setLoading(false);
-                      alert("Kullanıcılar Getirilemedi");
-                    });
+          {!(
+            pathname.includes("user/student") ||
+            pathname.includes("user/teacher")
+          ) &&
+            (totalStudent !== 0 || totalTeacher !== 0 ? (
+              <Pagination
+                totalCount={
+                  tabsType === "student"
+                    ? Number((totalStudent / 100).toFixed())
+                    : tabsType === "teacher"
+                    ? Number((totalTeacher / 100).toFixed())
+                    : ""
                 }
-              }}
-            />
-          ) : (
-            "data"
-          )}
+                selectedPage={userPageNum}
+                onClick={(pageNum) => {
+                  if (tabsType === "student") {
+                    setLoading(true);
+                    getAllStudents(token, pageNum)
+                      .then((data) => {
+                        setStudentsData(data.data.data);
+                        setUserPageNum(
+                          data.data.pagination.next.page !== null
+                            ? data.data.pagination.next.page - 1
+                            : data.data.pagination.next.previous + 1
+                        );
+                      })
+                      .then(() => setLoading(false))
+                      .catch(() => {
+                        setLoading(false);
+                        alert("Kullanıcılar Getirilemedi");
+                      });
+                  } else if (tabsType === "teacher") {
+                    setLoading(true);
+                    getAllTeachers(token, pageNum)
+                      .then((data) => {
+                        setTeachersData(data.data.data);
+                        setUserPageNum(
+                          data.data.pagination.next.page !== null
+                            ? data.data.pagination.next.page - 1
+                            : data.data.pagination.next.previous + 1
+                        );
+                      })
+                      .then(() => setLoading(false))
+                      .catch(() => {
+                        setLoading(false);
+                        alert("Kullanıcılar Getirilemedi");
+                      });
+                  }
+                }}
+              />
+            ) : (
+              "data"
+            ))}
         </>
       );
     } else if (pathname === "/admin/syllabus") {
