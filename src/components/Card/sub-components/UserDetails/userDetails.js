@@ -7,6 +7,7 @@ import {
   UpdateUserAppPassword,
   UpdateUserInfo,
   AddNewApp,
+  UpdateUserPasswordWithAdmin,
 } from "../../../../actions/action";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
@@ -20,6 +21,8 @@ import {
   IconUser,
   IconLock,
   PlusCircleSolid,
+  TimesCircleSolid,
+  CheckSolidCircle,
 } from "../../../../icons";
 import Office from "../../../../assets/images/office.png";
 import Actively from "../../../../assets/images/actively.png";
@@ -152,7 +155,16 @@ export default function UserDetail({ tabsType }) {
                 </div>
               </div>
               <div className={styles.name}>{`${firstName} ${lastName}`}</div>
-              <div className={styles.alertboxes}></div>
+              <div className={styles.alertboxes}>
+                <Button
+                  onClick={() => {
+                    setModalType("changeUserPassword");
+                    setIsActiveModal(true);
+                  }}
+                  type={"modal"}
+                  title={"Şifresini Değiştir"}
+                />
+              </div>
             </div>
             <div className={styles.formSection}>
               {/* 1.row */}
@@ -229,71 +241,71 @@ export default function UserDetail({ tabsType }) {
                   </div>
                 )}
               </div>
+              <Button
+                type="change"
+                title="Kaydet"
+                onClick={() => {
+                  setLoading(true);
+                  if (role === "student") {
+                    let date = new Date();
+                    let payload = {
+                      studentInfo: {
+                        class: {
+                          _id: selectedClass.id,
+                          name: oldClassName,
+                        },
+                        studentNumber: schoolNumber,
+                        school: school,
+                      },
+                      _id: params.id,
+                      fullName: `${firstName} ${lastName}`,
+                      first_name: firstName,
+                      last_name: lastName,
+                      username: username,
+                      createdAt: date,
+                      __v: 0,
+                      assignedClass: oldClassId,
+                      profile_photo: profilePhoto,
+                      id: params.id,
+                    };
+                    UpdateUserInfo(token, params.id, payload)
+                      .then(() => {
+                        setLoading(false);
+                        alert("Başarı ile kaydedildi");
+                      })
+                      .catch((e) => {
+                        setErrorMessage(e);
+                        setLoading(false);
+                        alert(e.error);
+                      });
+                  } else if (role === "instructor") {
+                    let date = new Date();
+                    let payload = {
+                      _id: params.id,
+                      fullName: `${firstName} ${lastName}`,
+                      first_name: firstName,
+                      last_name: lastName,
+                      username: username,
+                      profile_photo: profilePhoto,
+                      createdAt: date,
+                      __v: 0,
+                      id: params.id,
+                    };
+                    UpdateUserInfo(token, params.id, payload)
+                      .then(() => {
+                        setLoading(false);
+                        alert("Başarı ile kaydedildi");
+                      })
+                      .catch((e) => {
+                        setErrorMessage(e);
+                        setLoading(false);
+                        alert(e.error);
+                      });
+                  }
+                }}
+              />
             </div>
           </div>
-          <Button
-            type="change"
-            title="Kaydet"
-            onClick={() => {
-              setLoading(true);
-              if (role === "student") {
-                let date = new Date();
-                let payload = {
-                  studentInfo: {
-                    class: {
-                      _id: selectedClass.id,
-                      name: oldClassName,
-                    },
-                    studentNumber: schoolNumber,
-                    school: school,
-                  },
-                  _id: params.id,
-                  fullName: `${firstName} ${lastName}`,
-                  first_name: firstName,
-                  last_name: lastName,
-                  username: username,
-                  createdAt: date,
-                  __v: 0,
-                  assignedClass: oldClassId,
-                  profile_photo: profilePhoto,
-                  id: params.id,
-                };
-                UpdateUserInfo(token, params.id, payload)
-                  .then(() => {
-                    setLoading(false);
-                    alert("Başarı ile kaydedildi");
-                  })
-                  .catch((e) => {
-                    setErrorMessage(e);
-                    setLoading(false);
-                    alert(e.error);
-                  });
-              } else if (role === "instructor") {
-                let date = new Date();
-                let payload = {
-                  _id: params.id,
-                  fullName: `${firstName} ${lastName}`,
-                  first_name: firstName,
-                  last_name: lastName,
-                  username: username,
-                  profile_photo: profilePhoto,
-                  createdAt: date,
-                  __v: 0,
-                  id: params.id,
-                };
-                UpdateUserInfo(token, params.id, payload)
-                  .then(() => {
-                    setLoading(false);
-                    alert("Başarı ile kaydedildi");
-                  })
-                  .catch((e) => {
-                    setErrorMessage(e);
-                    setLoading(false);
-                    alert(e.error);
-                  });
-              }
-            }}
-          />
         </>
       ) : (
         <>
@@ -394,7 +406,10 @@ export function RenderModalContent({
   const [appPassword, setAppPassword] = useState({ status: true });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordAgain, setNewPasswordAgain] = useState("");
   const [selectedApp, setSelectedApp] = useState("");
+  const [errorMessage, setErrorMessage] = useState(false);
   const convertingApp = appPasswordData.map((item) => {
     return item.app.name;
   });
@@ -461,86 +476,169 @@ export function RenderModalContent({
         />
       </div>
     );
-  }
-  return (
-    <div>
-      <h3>Uygulama Şifresi Değiştirme</h3>
-      <Input
-        onChange={(e) => setAppUsername(e.target.value)}
-        method={"changePassword"}
-        value={
-          appUsername && appUsername.status ? appData.username : appUsername
-        }
-        type={"text"}
-        placeholder={"Kullanıcı Adın"}
-        inputStyle={"change"}
-      >
-        <IconUser className={styles.modalIcon} />
-      </Input>
-      <Input
-        onChange={(e) => setAppPassword(e.target.value)}
-        method={"changePassword"}
-        type={"password"}
-        placeholder={"Eski şifren"}
-        inputStyle={"change"}
-        value={
-          appPassword && appPassword.status ? appData.password : appPassword
-        }
-      >
-        <IconLock className={styles.modalIcon} />
-      </Input>
-      <Button
-        type={"change"}
-        title={"Kaydet"}
-        onClick={() => {
-          if (appData.username) {
-            const credentials = {
-              username:
-                typeof appUsername === "string"
-                  ? appUsername
-                  : appData.username,
-              password:
-                typeof appPassword === "string"
-                  ? appPassword
-                  : appData.password,
-            };
-            UpdateUserAppPassword(token, userId, payload._id, {
-              credentials: credentials,
-              _id: payload._id,
-              app: payload.app,
-              user: payload.user,
-            })
-              .then(() => {
-                alert("Uygulama şifresi değiştirme başarılı");
-                window.location.reload();
+  } else if (modalType === "changeUserPassword") {
+    return (
+      <>
+        <h3>Yeni Şifre</h3>
+        <Input
+          onChange={(e) => setNewPassword(e.target.value)}
+          method={"changePassword"}
+          type={"password"}
+          placeholder={"Yeni Şifre"}
+          inputStyle={"change"}
+          value={newPassword}
+        >
+          <IconLock className={styles.icon} />
+          {newPassword &&
+          newPasswordAgain &&
+          newPassword !== "" &&
+          newPasswordAgain !== "" &&
+          newPassword !== newPasswordAgain ? (
+            <TimesCircleSolid className={styles.timesSolid} />
+          ) : newPassword &&
+            newPasswordAgain &&
+            newPassword !== "" &&
+            newPasswordAgain !== "" &&
+            newPassword === newPasswordAgain ? (
+            <CheckSolidCircle className={styles.checkSolid} />
+          ) : (
+            ""
+          )}
+        </Input>
+        <Input
+          onChange={(e) => setNewPasswordAgain(e.target.value)}
+          method={"changePassword"}
+          type={"password"}
+          placeholder={"Yeni Şifre Tekrar"}
+          inputStyle={"change"}
+          value={newPasswordAgain}
+        >
+          <IconLock className={styles.icon} />
+          {newPassword &&
+          newPasswordAgain &&
+          newPassword !== "" &&
+          newPasswordAgain !== "" &&
+          newPassword !== newPasswordAgain ? (
+            <TimesCircleSolid className={styles.timesSolid} />
+          ) : newPassword &&
+            newPasswordAgain &&
+            newPassword !== "" &&
+            newPasswordAgain !== "" &&
+            newPassword === newPasswordAgain ? (
+            <CheckSolidCircle className={styles.checkSolid} />
+          ) : (
+            ""
+          )}
+        </Input>
+        {errorMessage ? (
+          <div className={styles.errorMessage}>{errorMessage}</div>
+        ) : (
+          ""
+        )}
+        <Button
+          type={"change"}
+          title={"Kaydet"}
+          onClick={() => {
+            if (
+              newPassword &&
+              newPasswordAgain &&
+              newPassword !== "" &&
+              newPasswordAgain !== "" &&
+              newPassword === newPasswordAgain
+            ) {
+              UpdateUserPasswordWithAdmin(token, {
+                userId: id,
+                newPassword: newPassword,
               })
-              .catch(() => alert("Bir hata oluştu"));
+                .then(() => {
+                  alert("Kullanıcın şifresi başarıyla değiştitildi");
+                })
+                .catch((e) => setErrorMessage(e));
+            } else setErrorMessage("Şifreler Uyuşmuyor");
+          }}
+        />
+      </>
+    );
+  } else
+    return (
+      <div>
+        <h3>Uygulama Şifresi Değiştirme</h3>
+        <Input
+          onChange={(e) => setAppUsername(e.target.value)}
+          method={"changePassword"}
+          value={
+            appUsername && appUsername.status ? appData.username : appUsername
           }
-          //  else if (appData.email) {
-          //   const credentials = {
-          //     email:
-          //       typeof appUsername === "string" ? appUsername : appData.email,
-          //     password:
-          //       typeof appPassword === "string"
-          //         ? appPassword
-          //         : appData.password,
-          //   };
-          //   UpdateUserAppPassword(token, userId, payload._id, {
-          //     credentials: credentials,
-          //     _id: payload._id,
-          //     app: payload.app,
-          //     user: payload.user,
-          //   })
-          //     .then(() => {
-          //       alert("Uygulama şifresi değiştirme başarılı");
-          //       window.location.reload();
-          //     })
-          //     .catch(() => alert("Bir hata oluştu"));
-          // }
-        }}
-      />
-    </div>
-  );
+          type={"text"}
+          placeholder={"Kullanıcı Adın"}
+          inputStyle={"change"}
+        >
+          <IconUser className={styles.modalIcon} />
+        </Input>
+        <Input
+          onChange={(e) => setAppPassword(e.target.value)}
+          method={"changePassword"}
+          type={"password"}
+          placeholder={"Eski şifren"}
+          inputStyle={"change"}
+          value={
+            appPassword && appPassword.status ? appData.password : appPassword
+          }
+        >
+          <IconLock className={styles.modalIcon} />
+        </Input>
+        <Button
+          type={"change"}
+          title={"Kaydet"}
+          onClick={() => {
+            if (appData.username) {
+              const credentials = {
+                username:
+                  typeof appUsername === "string"
+                    ? appUsername
+                    : appData.username,
+                password:
+                  typeof appPassword === "string"
+                    ? appPassword
+                    : appData.password,
+              };
+              UpdateUserAppPassword(token, userId, payload._id, {
+                credentials: credentials,
+                _id: payload._id,
+                app: payload.app,
+                user: payload.user,
+              })
+                .then(() => {
+                  alert("Uygulama şifresi değiştirme başarılı");
+                  window.location.reload();
+                })
+                .catch(() => alert("Bir hata oluştu"));
+            }
+            //  else if (appData.email) {
+            //   const credentials = {
+            //     email:
+            //       typeof appUsername === "string" ? appUsername : appData.email,
+            //     password:
+            //       typeof appPassword === "string"
+            //         ? appPassword
+            //         : appData.password,
+            //   };
+            //   UpdateUserAppPassword(token, userId, payload._id, {
+            //     credentials: credentials,
+            //     _id: payload._id,
+            //     app: payload.app,
+            //     user: payload.user,
+            //   })
+            //     .then(() => {
+            //       alert("Uygulama şifresi değiştirme başarılı");
+            //       window.location.reload();
+            //     })
+            //     .catch(() => alert("Bir hata oluştu"));
+            // }
+          }}
+        />
+      </div>
+    );
 }
 export function RenderIcon(props) {
   let { iconName } = props;

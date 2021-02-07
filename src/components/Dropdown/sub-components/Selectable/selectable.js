@@ -6,6 +6,7 @@ export default function Selectable({
   dropdownData = [{ value: "", id: "" }],
   onClick,
   value,
+  zIndex,
 }) {
   const [dropdownActive, setDropdownActive] = useState(false);
   const [dropdownValue, setDrodownValue] = useState(
@@ -15,7 +16,7 @@ export default function Selectable({
     <div
       id={"classDropdown"}
       onClick={() => setDropdownActive(!dropdownActive)}
-      className={styles.dropdown}
+      className={`${styles.dropdown} ${zIndex ? styles.zIndex : ""}`}
     >
       <div id={"dropdownName"} className={styles.dropdownName}>
         <Down id={"dropdownIcon"} className={styles.downIcon} />

@@ -43,8 +43,8 @@ export default function Settings() {
   const [classroomName, setClassroomName] = useState("");
   const [tabsType, setTabsType] = useState("myAccount");
   const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [userId, setUserId] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [newPasswordAgain, setNewPasswordAgain] = useState("");
   const [appData] = useState([]);
   const [appPasswordData, setAppPasswordData] = useState([]);
@@ -157,13 +157,19 @@ export default function Settings() {
               inputStyle={"change"}
               value={newPasswordAgain}
             >
-              <IconLock className={styles.icon} />
+              <IconLock
+                className={styles.icon}
+                style={{ width: 20, height: 20 }}
+              />
               {newPassword &&
               newPasswordAgain &&
               newPassword !== "" &&
               newPasswordAgain !== "" &&
               newPassword !== newPasswordAgain ? (
-                <TimesCircleSolid className={styles.timesSolid} />
+                <TimesCircleSolid
+                  style={{ width: 20, height: 20 }}
+                  className={styles.timesSolid}
+                />
               ) : newPassword &&
                 newPasswordAgain &&
                 newPassword !== "" &&

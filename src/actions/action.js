@@ -184,12 +184,26 @@ export async function addClass(token, instructorId, classesName) {
   );
   return response;
 }
-export function getAllUser(token, fullName) {
+export function getAllUser(token, keyword, role) {
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
   const response = axios.get(
-    `${uri}/users${fullName ? `?fullName=${fullName}` : ""}`,
+    `${uri}/users${
+      keyword
+        ? `?role=${role}&select=fullName,first_name,last_name,profile_photo,studentInfo&keyword=${keyword}`
+        : ""
+    }`,
+    config
+  );
+  return response;
+}
+export function getAllUserByClass(token, classId) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  const response = axios.get(
+    `${uri}/users?role=student&classId=${classId}`,
     config
   );
   return response;
@@ -219,30 +233,11 @@ export function getAllTeachers(token, page, limit) {
   return response;
 }
 
-export async function CreateUser(
-  token,
-  firstname,
-  lastname,
-  username,
-  phone,
-  role,
-  gender
-) {
+export async function CreateUser(token, payload) {
   const config = {
     headers: { authorization: `Bearer ${token}` },
   };
-  const response = await axios.post(
-    `${uri}/users`,
-    {
-      first_name: firstname,
-      last_name: lastname,
-      username: username,
-      phone: phone,
-      gender: gender,
-      role: role,
-    },
-    config
-  );
+  const response = await axios.post(`${uri}/users`, payload, config);
   return response;
 }
 export async function updateUser(
@@ -512,6 +507,20 @@ export async function UpdateUserPassword(
     headers: { authorization: `Bearer ${token}` },
   };
   const response = axios.post(`${uri}/auth/update-password`, payload, config);
+  return response;
+}
+export async function UpdateUserPasswordWithAdmin(
+  token,
+  payload = { userId: "", newPassword: "" }
+) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  const response = axios.post(
+    `${uri}/auth/update-password-admin`,
+    payload,
+    config
+  );
   return response;
 }
 export async function UpdateUserAppPassword(

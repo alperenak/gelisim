@@ -13,6 +13,7 @@ import {
   getAllClass,
   GetAllExams,
   GetSpecifiApps,
+  getAllUserByClass,
 } from "../../actions/action";
 import Input from "../../components/Input/input";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -21,6 +22,7 @@ import { useCookies } from "react-cookie";
 import Login from "../../screens/Login/login";
 import Loading from "../../components/Loading/loading";
 import Pagination from "../../components/Pagination/pagination";
+import Dropdown from "../../components/Dropdown/dropdown";
 export default function Admin() {
   const [announcementsData, setAnnouncementsData] = useState(false);
   const [newAnnouncementsData, setNewAnnouncementsData] = useState([]);
@@ -116,7 +118,7 @@ function RenderCard({ pathname, announcementsData }) {
       e.target.value.length >= 2 &&
       (tabsType === "student" || tabsType === "teacher")
     ) {
-      getAllUser(token, e.target.value).then((data) => {
+      getAllUser(token, targetVal, tabsType).then((data) => {
         if (targetVal) {
           if (tabsType === "student") setDisplayStudent(data.data.data);
           else if (tabsType === "teacher") setDisplayTeacher(data.data.data);
@@ -294,7 +296,7 @@ function RenderCard({ pathname, announcementsData }) {
       );
     } else if (pathname === "/admin/user") {
       return (
-        <>
+        <div>
           <h1>Kullanıcı Yönetimi</h1>
           <div className={styles.topSide}>
             <Input
@@ -304,6 +306,30 @@ function RenderCard({ pathname, announcementsData }) {
             >
               <SearchSolid className={styles.searchIcon} />
             </Input>
+            <Dropdown
+              zIndex
+              type={"selectable"}
+              dropdownData={[
+                { value: "Tüm Sınıflar", id: "asdasd" },
+                ...classData.map((item) => {
+                  return {
+                    value: item.name,
+                    id: item.id ? item.id : item._id,
+                  };
+                }),
+              ]}
+              value={"Tüm Sınıflar"}
+              onClick={(event) => {
+                if (event.value !== "Tüm Sınıflar")
+                  getAllUserByClass(token, event.id).then((data) =>
+                    setStudentsData(data.data.data)
+                  );
+                else
+                  getAllStudents(token, 1, 100).then((data) =>
+                    setStudentsData(data.data.data)
+                  );
+              }}
+            />
             <div className={styles.tabs}>
               <div
                 className={`${styles.tabsButton} ${
@@ -383,7 +409,7 @@ function RenderCard({ pathname, announcementsData }) {
             ) : (
               "data"
             ))}
-        </>
+        </div>
       );
     } else if (pathname === "/admin/syllabus") {
       return (
@@ -420,51 +446,6 @@ function RenderCard({ pathname, announcementsData }) {
             </div>
           </div>
           <Card type={"userDetails"} tabsType={tabsType} />
-          <Pagination
-            totalCount={
-              tabsType === "student"
-                ? Number((totalStudent / 100).toFixed())
-                : tabsType === "teacher"
-                ? Number((totalTeacher / 100).toFixed())
-                : ""
-            }
-            selectedPage={userPageNum}
-            onClick={(pageNum) => {
-              if (tabsType === "student") {
-                setLoading(true);
-                getAllStudents(token, pageNum)
-                  .then((data) => {
-                    setStudentsData(data.data.data);
-                    setUserPageNum(
-                      data.data.pagination.next.page !== null
-                        ? data.data.pagination.next.page - 1
-                        : data.data.pagination.next.previous + 1
-                    );
-                  })
-                  .then(() => setLoading(false))
-                  .catch(() => {
-                    setLoading(false);
-                    alert("Kullanıcılar Getirilemedi");
-                  });
-              } else if (tabsType === "teacher") {
-                setLoading(true);
-                getAllTeachers(token, pageNum)
-                  .then((data) => {
-                    setTeachersData(data.data.data);
-                    setUserPageNum(
-                      data.data.pagination.next.page !== null
-                        ? data.data.pagination.next.page - 1
-                        : data.data.pagination.next.previous + 1
-                    );
-                  })
-                  .then(() => setLoading(false))
-                  .catch(() => {
-                    setLoading(false);
-                    alert("Kullanıcılar Getirilemedi");
-                  });
-              }
-            }}
-          />
         </>
       );
     } else if (pathname === "/admin/activity") {
