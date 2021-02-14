@@ -525,7 +525,14 @@ function RenderCard({
               </div>
             </div>
           </div>
-          <Card type={"userDetails"} tabsType={tabsType} />
+          <Card
+            type={"userDetails"}
+            tabsType={tabsType}
+            loading={loading}
+            setLoading={setLoading}
+            setAlertboxActive={setAlertboxActive}
+            setAlertData={setAlertData}
+          />
         </>
       );
     } else if (pathname === "/admin/activity") {

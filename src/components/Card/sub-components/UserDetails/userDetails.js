@@ -8,10 +8,10 @@ import {
   UpdateUserInfo,
   AddNewApp,
   UpdateUserPasswordWithAdmin,
+  updateUser,
 } from "../../../../actions/action";
 import { useHistory, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
-import Loading from "../../../Loading/loading";
 import styles from "./userDetails.module.scss";
 import Background from "../../../../assets/images/classroom.jpg";
 import {
@@ -25,7 +25,6 @@ import {
   CheckSolidCircle,
 } from "../../../../icons";
 import Office from "../../../../assets/images/office.png";
-import AlertComponent from "../../../Alertbox/alertbox";
 import Actively from "../../../../assets/images/actively.png";
 import BrainPop from "../../../../assets/images/brainpop.png";
 import KhanAcademy from "../../../../assets/images/khan.png";
@@ -44,11 +43,15 @@ import Zoom from "../../../../assets/images/zoom.png";
 import Button from "../../../Button/button";
 import Dropdown from "../../../Dropdown/dropdown";
 import Modal from "../../../Modal/modal";
-export default function UserDetail({ tabsType }) {
+export default function UserDetail({
+  tabsType,
+  setLoading,
+  setAlertData,
+  setAlertboxActive,
+}) {
   const token = GetToken();
   const params = useParams();
   const history = useHistory();
-  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({});
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -67,13 +70,12 @@ export default function UserDetail({ tabsType }) {
   const [appData, setAppData] = useState([]);
   const [payload, setPayload] = useState({});
   const [isActiveModal, setIsActiveModal] = useState(false);
-  const [alertboxActive, setAlertboxActive] = useState(false);
-  const [alertData, setAlertData] = useState({});
   const [modalType, setModalType] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [errorMessage, setErrorMessage] = useState(false);
   const userId = params.id;
-  useEffect(() => {
+
+  function updateUser() {
     GetUserInformations(token, params.id)
       .then((data) => {
         //test
@@ -126,6 +128,61 @@ export default function UserDetail({ tabsType }) {
         setLoading(false);
         setErrorMessage(e);
       });
+  }
+
+  useEffect(() => {
+    GetUserInformations(token, params.id)
+      .then((data) => {
+        //test
+        setLoading(false);
+        let Cdata;
+        if (data.data.data.userInfo) Cdata = data.data.data.userInfo;
+        else Cdata = data.data.data;
+
+        setAllTheClasses(data.data.data.classes);
+        setRole(Cdata.role);
+        setUserData(Cdata);
+        setFirstName(Cdata.first_name);
+        setLastName(Cdata.last_name);
+        setProfilePhoto(Cdata.profile_photo);
+        setUsername(Cdata.username);
+        GetSpecifiApps(token, 8).then((data) => {
+          setAllAppsData(data.data.data[0].Apps);
+        });
+        if (Cdata.role === "student") {
+          setSchool(Cdata.studentInfo.school);
+          setSchoolNumber(Cdata.studentInfo.studentNumber);
+          setClassesName(Cdata.studentInfo.class.name);
+          setOldClassId(
+            Cdata.studentInfo.class.id
+              ? Cdata.studentInfo.class.id
+              : Cdata.studentInfo.class._id
+          );
+          SetSelectedClass({
+            value: Cdata.studentInfo.class.name,
+            id: Cdata.studentInfo.class.id
+              ? Cdata.studentInfo.class.id
+              : Cdata.studentInfo.class._id,
+          });
+          setOldClassName(Cdata.studentInfo.class.name);
+          GetSpecifiApps(
+            token,
+            ["10", "11", "12"].includes(
+              Cdata.studentInfo.class.name.slice(0, 2)
+            )
+              ? Cdata.studentInfo.class.name.slice(0, 2)
+              : Cdata.studentInfo.class.name[0]
+          )
+            .then((datass) => {
+              setAllAppsData(datass.data.data[0].Apps);
+            })
+            .catch((e) => console.error(e));
+        }
+      })
+      .catch((e) => {
+        setLoading(false);
+        setErrorMessage(e);
+      });
 
     GetUserAppPassword(token, params.id)
       .then((data) => {
@@ -135,14 +192,7 @@ export default function UserDetail({ tabsType }) {
   }, []);
   return (
     <div className={styles.userDetailContainer}>
-      <AlertComponent
-        isActive={alertboxActive}
-        setIsActive={setAlertboxActive}
-        alertData={alertData}
-      />
-      {loading ? (
-        <Loading noBackground={true} />
-      ) : tabsType === "student" ? (
+      {tabsType === "student" ? (
         <>
           <div
             onClick={() => history.push("/admin/user")}
@@ -278,6 +328,7 @@ export default function UserDetail({ tabsType }) {
                     UpdateUserInfo(token, params.id, payload)
                       .then(() => {
                         setLoading(false);
+                        updateUser();
                         setAlertboxActive(true);
                         setAlertData({
                           type: "success",
@@ -308,6 +359,7 @@ export default function UserDetail({ tabsType }) {
                     UpdateUserInfo(token, params.id, payload)
                       .then(() => {
                         setLoading(false);
+                        updateUser();
                         setAlertboxActive(true);
                         setAlertData({
                           type: "success",
@@ -407,7 +459,9 @@ export default function UserDetail({ tabsType }) {
           appPasswordData={appPasswordData}
           modalType={modalType}
           setAlertboxActive={setAlertboxActive}
+          setLoading={setLoading}
           setAlertData={setAlertData}
+          setAppPasswordData={setAppPasswordData}
           allApps={allAppsData}
           setIsActiveModal={setIsActiveModal}
         />
@@ -424,7 +478,9 @@ export function RenderModalContent({
   payload,
   modalType,
   setIsActiveModal,
+  setAppPasswordData,
   allApps,
+  setLoading,
 }) {
   const { id } = useParams();
   const [appUsername, setAppUsername] = useState({ status: true });
@@ -438,7 +494,21 @@ export function RenderModalContent({
   const convertingApp = appPasswordData.map((item) => {
     return item.app.name;
   });
+  console.log(allApps);
   const token = GetToken();
+  function UpdateApps() {
+    GetUserAppPassword(token, id)
+      .then((data) => {
+        setAppPasswordData(data.data.data);
+      })
+      .catch(() => {
+        setAlertboxActive(true);
+        setAlertData({
+          type: "success",
+          title: "Uygulama başarıyla eklendi",
+        });
+      });
+  }
 
   if (modalType === "add") {
     return (
@@ -469,23 +539,13 @@ export function RenderModalContent({
                 id: item.app.id ? item.app.id : item.app._id,
               };
             })}
-          value={
-            allApps
-              .filter((item) => {
-                return !convertingApp.includes(item.app.name);
-              })
-              .map((item) => {
-                return {
-                  value: item.app.title,
-                  id: item.app.id ? item.app.id : item.app._id,
-                };
-              })[0]?.value
-          }
+          value={"Uygulama Seçiniz"}
         />
         <Button
           type={"change"}
           title={"Kaydet"}
           onClick={() => {
+            setLoading(true);
             setIsActiveModal(false);
             let payload = {
               user: id,
@@ -496,7 +556,9 @@ export function RenderModalContent({
             };
             AddNewApp(token, payload, selectedApp.id)
               .then(() => {
+                setLoading(false);
                 setAlertboxActive(true);
+                UpdateApps();
                 setAlertData({
                   type: "success",
                   title: "Uygulama başarıyla eklendi",
@@ -580,11 +642,14 @@ export function RenderModalContent({
               newPasswordAgain !== "" &&
               newPassword === newPasswordAgain
             ) {
+              setIsActiveModal(false);
+              setLoading(true);
               UpdateUserPasswordWithAdmin(token, {
                 userId: id,
                 newPassword: newPassword,
               })
                 .then(() => {
+                  setLoading(false);
                   setAlertboxActive(true);
                   setAlertData({
                     type: "success",
@@ -592,6 +657,7 @@ export function RenderModalContent({
                   });
                 })
                 .catch(() => {
+                  setLoading(false);
                   setAlertboxActive(true);
                   setAlertData({
                     type: "error",
@@ -646,6 +712,8 @@ export function RenderModalContent({
                     ? appPassword
                     : appData.password,
               };
+              setLoading(true);
+              setIsActiveModal(false);
               UpdateUserAppPassword(token, userId, payload._id, {
                 credentials: credentials,
                 _id: payload._id,
@@ -653,12 +721,13 @@ export function RenderModalContent({
                 user: payload.user,
               })
                 .then(() => {
+                  setLoading(false);
+                  UpdateApps();
                   setAlertboxActive(true);
                   setAlertData({
                     type: "success",
                     title: "Uygulama şifresi başarıyla değiştirildi",
                   });
-                  window.location.reload();
                 })
                 .catch(() => {
                   setAlertboxActive(true);
