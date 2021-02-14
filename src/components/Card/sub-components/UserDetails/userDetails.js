@@ -9,7 +9,7 @@ import {
   AddNewApp,
   UpdateUserPasswordWithAdmin,
 } from "../../../../actions/action";
-import { useHistory, useLocation, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
 import Loading from "../../../Loading/loading";
 import styles from "./userDetails.module.scss";
@@ -25,6 +25,7 @@ import {
   CheckSolidCircle,
 } from "../../../../icons";
 import Office from "../../../../assets/images/office.png";
+import AlertComponent from "../../../Alertbox/alertbox";
 import Actively from "../../../../assets/images/actively.png";
 import BrainPop from "../../../../assets/images/brainpop.png";
 import KhanAcademy from "../../../../assets/images/khan.png";
@@ -66,6 +67,8 @@ export default function UserDetail({ tabsType }) {
   const [appData, setAppData] = useState([]);
   const [payload, setPayload] = useState({});
   const [isActiveModal, setIsActiveModal] = useState(false);
+  const [alertboxActive, setAlertboxActive] = useState(false);
+  const [alertData, setAlertData] = useState({});
   const [modalType, setModalType] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [errorMessage, setErrorMessage] = useState(false);
@@ -133,6 +136,11 @@ export default function UserDetail({ tabsType }) {
   }, []);
   return (
     <div className={styles.userDetailContainer}>
+      <AlertComponent
+        isActive={alertboxActive}
+        setIsActive={setAlertboxActive}
+        alertData={alertData}
+      />
       {loading ? (
         <Loading noBackground={true} />
       ) : tabsType === "student" ? (
@@ -271,12 +279,19 @@ export default function UserDetail({ tabsType }) {
                     UpdateUserInfo(token, params.id, payload)
                       .then(() => {
                         setLoading(false);
-                        alert("Başarı ile kaydedildi");
+                        setAlertboxActive(true);
+                        setAlertData({
+                          type: "success",
+                          title: "Kullanıcı başarıyla güncellendi",
+                        });
                       })
-                      .catch((e) => {
-                        setErrorMessage(e);
+                      .catch(() => {
                         setLoading(false);
-                        alert(e.error);
+                        setAlertboxActive(true);
+                        setAlertData({
+                          type: "error",
+                          title: "Kullanıcı Güncellenemedi",
+                        });
                       });
                   } else if (role === "instructor") {
                     let date = new Date();
@@ -294,12 +309,19 @@ export default function UserDetail({ tabsType }) {
                     UpdateUserInfo(token, params.id, payload)
                       .then(() => {
                         setLoading(false);
-                        alert("Başarı ile kaydedildi");
+                        setAlertboxActive(true);
+                        setAlertData({
+                          type: "success",
+                          title: "Kullanıcı başarıyla güncellendi",
+                        });
                       })
-                      .catch((e) => {
-                        setErrorMessage(e);
+                      .catch(() => {
                         setLoading(false);
-                        alert(e.error);
+                        setAlertboxActive(true);
+                        setAlertData({
+                          type: "error",
+                          title: "Kullanıcı Güncellenemedi",
+                        });
                       });
                   }
                 }}
@@ -385,6 +407,8 @@ export default function UserDetail({ tabsType }) {
           payload={payload}
           appPasswordData={appPasswordData}
           modalType={modalType}
+          setAlertboxActive={setAlertboxActive}
+          setAlertData={setAlertData}
           allApps={allAppsData}
           setIsActiveModal={setIsActiveModal}
         />
@@ -395,13 +419,15 @@ export default function UserDetail({ tabsType }) {
 export function RenderModalContent({
   appData,
   appPasswordData,
+  setAlertData,
+  setAlertboxActive,
   userId,
   payload,
   modalType,
   setIsActiveModal,
   allApps,
 }) {
-  const { id } = useLocation();
+  const { id } = useParams();
   const [appUsername, setAppUsername] = useState({ status: true });
   const [appPassword, setAppPassword] = useState({ status: true });
   const [username, setUsername] = useState("");
@@ -469,9 +495,18 @@ export function RenderModalContent({
                 password: password,
               },
             };
-            AddNewApp(token, payload, selectedApp.id).then(() =>
-              alert("Başarıyla uygulama eklendi")
-            );
+            AddNewApp(token, payload, selectedApp.id)
+              .then(() => {
+                setAlertboxActive(true);
+                setAlertData({
+                  type: "success",
+                  title: "Uygulama başarıyla eklendi",
+                });
+              })
+              .catch(() => {
+                setAlertboxActive(true);
+                setAlertData({ type: "error", title: "Uygulama eklenemedi" });
+              });
           }}
         />
       </div>
@@ -488,7 +523,7 @@ export function RenderModalContent({
           inputStyle={"change"}
           value={newPassword}
         >
-          <IconLock className={styles.icon} />
+          <IconLock className={styles.iconLock} />
           {newPassword &&
           newPasswordAgain &&
           newPassword !== "" &&
@@ -513,7 +548,7 @@ export function RenderModalContent({
           inputStyle={"change"}
           value={newPasswordAgain}
         >
-          <IconLock className={styles.icon} />
+          <IconLock className={styles.iconLock} />
           {newPassword &&
           newPasswordAgain &&
           newPassword !== "" &&
@@ -551,9 +586,19 @@ export function RenderModalContent({
                 newPassword: newPassword,
               })
                 .then(() => {
-                  alert("Kullanıcın şifresi başarıyla değiştitildi");
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "success",
+                    title: "Kullanıcının şifresi başarıyla değiştirildi",
+                  });
                 })
-                .catch((e) => setErrorMessage(e));
+                .catch(() => {
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "error",
+                    title: "Kullanıcının şifresi değiştirilemedi",
+                  });
+                });
             } else setErrorMessage("Şifreler Uyuşmuyor");
           }}
         />
@@ -609,32 +654,21 @@ export function RenderModalContent({
                 user: payload.user,
               })
                 .then(() => {
-                  alert("Uygulama şifresi değiştirme başarılı");
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "success",
+                    title: "Uygulama şifresi başarıyla değiştirildi",
+                  });
                   window.location.reload();
                 })
-                .catch(() => alert("Bir hata oluştu"));
+                .catch(() => {
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "error",
+                    title: "Uygulama şifresi değiştirilemedi",
+                  });
+                });
             }
-            //  else if (appData.email) {
-            //   const credentials = {
-            //     email:
-            //       typeof appUsername === "string" ? appUsername : appData.email,
-            //     password:
-            //       typeof appPassword === "string"
-            //         ? appPassword
-            //         : appData.password,
-            //   };
-            //   UpdateUserAppPassword(token, userId, payload._id, {
-            //     credentials: credentials,
-            //     _id: payload._id,
-            //     app: payload.app,
-            //     user: payload.user,
-            //   })
-            //     .then(() => {
-            //       alert("Uygulama şifresi değiştirme başarılı");
-            //       window.location.reload();
-            //     })
-            //     .catch(() => alert("Bir hata oluştu"));
-            // }
           }}
         />
       </div>
