@@ -31,21 +31,21 @@ export default function UserManagement({
   studentsData,
   setStudentsData,
   setTeachersData,
+  setLoading,
+  setAlertData,
+  userPageNum,
+  setAlertboxActive,
   teachersData,
 }) {
   const [isActive, setIsActive] = useState(false);
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [alertboxActive, setAlertboxActive] = useState(false);
-  const [alertData, setAlertData] = useState({});
   const [allTheClasses, setAllTheClasses] = useState([]);
   const history = useHistory();
   const token = GetToken();
-
   function updateStudents() {
     setLoading(true);
-    getAllStudents(token, 1, 100)
+    getAllStudents(token, userPageNum, 100)
       .then((data) => {
         setStudentsData(data.data.data);
         setLoading(false);
@@ -59,7 +59,7 @@ export default function UserManagement({
 
   function updateTeachers() {
     setLoading(true);
-    getAllTeachers(token, 1, 100)
+    getAllTeachers(token, userPageNum, 100)
       .then((data) => {
         setTeachersData(data.data.data);
         setLoading(false);
@@ -86,58 +86,50 @@ export default function UserManagement({
   }, []);
   return (
     <div className={styles.schedule}>
-      {loading ? (
-        <Loading fullscreen={true} />
-      ) : (
-        <>
-          <AlertComponent
-            isActive={alertboxActive}
-            setIsActive={setAlertboxActive}
-            alertData={alertData}
-          />
-          <div className={styles.topSide}>
-            <div className={styles.title}>Kullanıcı Yönetimi</div>
-            <div
-              onClick={() => {
-                setIsActive(true);
-                setModalType("add");
-              }}
-              className={styles.feedback}
-            >
-              <PlusCircleSolid className={styles.feedbackIcon} />
-              <div className={styles.feedbackTitle}>
-                {tabsType === "student"
-                  ? "Yeni Öğrenci Oluştur"
-                  : "Yeni Öğretmen oluştur"}
-              </div>
+      <>
+        <div className={styles.topSide}>
+          <div className={styles.title}>Kullanıcı Yönetimi</div>
+          <div
+            onClick={() => {
+              setIsActive(true);
+              setModalType("add");
+            }}
+            className={styles.feedback}
+          >
+            <PlusCircleSolid className={styles.feedbackIcon} />
+            <div className={styles.feedbackTitle}>
+              {tabsType === "student"
+                ? "Yeni Öğrenci Oluştur"
+                : "Yeni Öğretmen oluştur"}
             </div>
           </div>
-          <div className={styles.scheduleTitlesSection}>
+        </div>
+        <div className={styles.scheduleTitlesSection}>
+          <table>
+            <tr className={styles.scheduleTitlesRow}>
+              <div className={styles.scheduleTitles}>
+                <User
+                  className={`${styles.scheduleTitlesIcon} ${styles.user}`}
+                />
+                <td className={styles.ogretmen}>Ad Soyad</td>
+              </div>
+              <div className={styles.scheduleTitles}>
+                <Ders
+                  className={`${styles.scheduleTitlesIcon} ${styles.editAndDelete}`}
+                />
+                <td>Sil</td>
+              </div>
+            </tr>
+          </table>
+        </div>
+        <div className={styles.userManagementTableWrapper}>
+          <div className={styles.scheduleSection}>
             <table>
-              <tr className={styles.scheduleTitlesRow}>
-                <div className={styles.scheduleTitles}>
-                  <User
-                    className={`${styles.scheduleTitlesIcon} ${styles.user}`}
-                  />
-                  <td className={styles.ogretmen}>Ad Soyad</td>
-                </div>
-                <div className={styles.scheduleTitles}>
-                  <Ders
-                    className={`${styles.scheduleTitlesIcon} ${styles.editAndDelete}`}
-                  />
-                  <td>Sil</td>
-                </div>
-              </tr>
-            </table>
-          </div>
-          <div className={styles.userManagementTableWrapper}>
-            <div className={styles.scheduleSection}>
-              <table>
-                {studentsData && studentsData !== null && tabsType === "student"
-                  ? studentsData.map((item, index) => {
-                      return (
-                        <tr
-                          key={index}
+              {studentsData && studentsData !== null && tabsType === "student"
+                ? studentsData.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <div
                           onClick={() => {
                             setClassId(item._id);
                             history.push(
@@ -146,6 +138,7 @@ export default function UserManagement({
                               }`
                             );
                           }}
+                          className={styles.scheduleRowWrapper}
                         >
                           <div className={styles.scheduleTeacher}>
                             <div className={styles.avatar}>
@@ -165,36 +158,47 @@ export default function UserManagement({
                               : ""}
                           </td>
                           <td className={styles.space}></td>
-                          <td className={styles.space}>
-                            <TrashSolid
-                              onClick={() => {
-                                deleteUser(token, item._id)
-                                  .then(() => {
-                                    updateStudents();
-                                    setAlertboxActive(true);
-                                    setAlertData({
-                                      type: "success",
-                                      title: "Kullanıcı başarıyla silindi",
-                                    });
-                                  })
-                                  .catch(() => {
-                                    setAlertboxActive(true);
-                                    setAlertData({
-                                      type: "error",
-                                      title: "Kullanıcı silinemedi",
-                                    });
+                        </div>
+                        <td className={`${styles.space} ${styles.trashCircle}`}>
+                          <TrashSolid
+                            onClick={() => {
+                              deleteUser(token, item._id)
+                                .then(() => {
+                                  updateStudents();
+                                  setAlertboxActive(true);
+                                  setAlertData({
+                                    type: "success",
+                                    title: "Kullanıcı başarıyla silindi",
                                   });
-                              }}
-                              className={styles.deleteIcon}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })
-                  : teachersData.map((item, index) => {
-                      return (
-                        <tr
-                          key={index}
+                                })
+                                .catch(() => {
+                                  setAlertboxActive(true);
+                                  setAlertData({
+                                    type: "error",
+                                    title: "Kullanıcı silinemedi",
+                                  });
+                                });
+                            }}
+                            className={styles.deleteIcon}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })
+                : teachersData.map((item, index) => {
+                    return (
+                      <tr
+                        key={index}
+                        onClick={() => {
+                          setClassId(item._id);
+                          history.push(
+                            `/admin/user/${tabsType}/${
+                              item.id ? item.id : item._id
+                            }`
+                          );
+                        }}
+                      >
+                        <div
                           onClick={() => {
                             setClassId(item._id);
                             history.push(
@@ -203,6 +207,7 @@ export default function UserManagement({
                               }`
                             );
                           }}
+                          className={styles.scheduleRowWrapper}
                         >
                           <div className={styles.scheduleTeacher}>
                             <div className={styles.avatar}>
@@ -211,49 +216,49 @@ export default function UserManagement({
                             <td>{`${item.first_name} ${item.last_name}`}</td>
                           </div>
                           <td className={styles.space}></td>
-                          <td className={styles.space}>
-                            <TrashSolid
-                              onClick={() => {
-                                deleteUser(token, item._id).then(() => {
-                                  updateTeachers();
+                        </div>
+                        <td className={`${styles.space} ${styles.trashCircle}`}>
+                          <TrashSolid
+                            onClick={() => {
+                              deleteUser(token, item._id).then(() => {
+                                updateTeachers();
+                                setAlertboxActive(true);
+                                setAlertData({
+                                  type: "success",
+                                  title: "Kullanıcı başarıyla silindi",
+                                }).catch(() => {
                                   setAlertboxActive(true);
                                   setAlertData({
-                                    type: "success",
-                                    title: "Kullanıcı başarıyla silindi",
-                                  }).catch(() => {
-                                    setAlertboxActive(true);
-                                    setAlertData({
-                                      type: "error",
-                                      title: "Kullanıcı silinemedi",
-                                    });
+                                    type: "error",
+                                    title: "Kullanıcı silinemedi",
                                   });
                                 });
-                              }}
-                              className={styles.deleteIcon}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-              </table>
-            </div>
+                              });
+                            }}
+                            className={styles.deleteIcon}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+            </table>
           </div>
-          <Modal isActive={isActive} setIsActive={setIsActive}>
-            <RenderModalContent
-              isActive={isActive}
-              setIsActive={setIsActive}
-              type={modalType}
-              classId={classId}
-              tabsType={tabsType}
-              updateAllUsers={updateAllUsers}
-              setAlertboxActive={setAlertboxActive}
-              setAlertData={setAlertData}
-              allTheClasses={allTheClasses}
-              teachersData={teachersData}
-            />
-          </Modal>
-        </>
-      )}
+        </div>
+        <Modal isActive={isActive} setIsActive={setIsActive}>
+          <RenderModalContent
+            isActive={isActive}
+            setIsActive={setIsActive}
+            type={modalType}
+            classId={classId}
+            tabsType={tabsType}
+            updateAllUsers={updateAllUsers}
+            setAlertboxActive={setAlertboxActive}
+            setAlertData={setAlertData}
+            allTheClasses={allTheClasses}
+            teachersData={teachersData}
+          />
+        </Modal>
+      </>
     </div>
   );
 }

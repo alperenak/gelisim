@@ -3,7 +3,6 @@ import { ChevronLeftSolid, ChevronRightSolid } from "../../icons";
 import styles from "./pagination.module.scss";
 export default function Pagination({ totalCount, selectedPage, onClick }) {
   const arr = makeArray(totalCount);
-  const [defaultCount] = useState(totalCount);
   const [selectedCirle, setSelectedCircle] = useState(selectedPage);
   const [rightDisable, setRightDisable] = useState(false);
   const [leftDisable, setLeftDisable] = useState(true);
@@ -34,7 +33,7 @@ export default function Pagination({ totalCount, selectedPage, onClick }) {
         >
           <ChevronLeftSolid className={styles.arrow} />
         </div>
-        {arr.slice(0, defaultCount).map((item, index) => {
+        {arr.slice(0, totalCount).map((item, index) => {
           return (
             <div
               key={index}

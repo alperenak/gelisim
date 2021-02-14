@@ -100,6 +100,7 @@ function RenderCard({
   const dropdownIcon = document.getElementById("dropdownIcon");
   const [studentsData, setStudentsData] = useState([]);
   const [totalTeacher, setTotalTeacher] = useState(0);
+  const [targetValue, setTargetValue] = useState("");
   const [totalStudent, setTotalStudent] = useState(0);
   const token = GetToken();
   const [userPageNum, setUserPageNum] = useState(1);
@@ -124,45 +125,75 @@ function RenderCard({
     else setDisplay(res);
   }
   function onChangeUserManagementSearch(e) {
-    const targetVal = e.target.value;
-    if (!targetVal) {
-      setDisplayStudent(studentsData);
-      setDisplayTeacher(teachersData);
-    }
-    if (
-      e.target.value.length >= 2 &&
-      (tabsType === "student" || tabsType === "teacher")
-    ) {
-      getAllUser(token, targetVal, tabsType).then((data) => {
-        if (targetVal) {
-          if (tabsType === "student") setDisplayStudent(data.data.data);
-          else if (tabsType === "teacher") setDisplayTeacher(data.data.data);
-        } else if (tabsType === "teacher") setDisplayTeacher(teachersData);
-        else if (tabsType === "student") setDisplayStudent(studentsData);
-      });
-    } else if (
-      (targetVal.length <= 2 || !targetVal || targetVal === "") &&
-      (tabsType === "student" || tabsType === "teacher")
-    ) {
-      if (tabsType === "student") setDisplayStudent(studentsData);
-      else if (tabsType === "teacher") setDisplayTeacher(teachersData);
-      else {
-        setDisplayStudent(studentsData);
-        setDisplayTeacher(teachersData);
+    let targetValue = e.target.value;
+    setTargetValue(e.target.value);
+    if (tabsType === "student") {
+      if (targetValue.length < 2) {
+        setDisplayStudent("");
+      } else if (targetValue.length >= 2) {
+        getAllUser(token, targetValue, "student").then((data) => {
+          if (targetValue.length >= 2) setDisplayStudent(data.data.data);
+          else setDisplayStudent("");
+        });
       }
-    } else if (tabsType === "class") {
-      const res = classData.filter((state) => {
-        const name = state.name;
-        return e.target.value
-          ? name.toLowerCase().includes(e.target.value.toLowerCase())
-          : "";
-      });
-      if (e.target.value === "") setDisplayClass("");
-      else setDisplayClass(res);
-    } else {
-      setDisplayTeacher(teachersData);
-      setDisplayStudent(studentsData);
+    } else if (tabsType === "teacher") {
+      if (targetValue.length < 2) {
+        setDisplayTeacher("");
+      } else if (targetValue.length >= 2) {
+        getAllUser(token, targetValue, "instructor").then((data) => {
+          if (targetValue.length >= 2) setDisplayTeacher(data.data.data);
+          else setDisplayTeacher("");
+        });
+      } else if (tabsType === "class") {
+        const res = classData.filter((state) => {
+          const name = state.name;
+          return e.target.value
+            ? name.toLowerCase().includes(e.target.value.toLowerCase())
+            : "";
+        });
+        if (e.target.value === "") setDisplayClass("");
+        else setDisplayClass(res);
+      }
     }
+    // const targetVal = e.target.value;
+    // if (!targetVal) {
+    //   setDisplayStudent(studentsData);
+    //   setDisplayTeacher(teachersData);
+    // }
+    // if (
+    //   e.target.value.length >= 2 &&
+    //   (tabsType === "student" || tabsType === "teacher")
+    // ) {
+    //   getAllUser(token, targetVal, tabsType).then((data) => {
+    //     if (targetVal) {
+    //       if (tabsType === "student") setDisplayStudent(data.data.data);
+    //       else if (tabsType === "teacher") setDisplayTeacher(data.data.data);
+    //     } else if (tabsType === "teacher") setDisplayTeacher(teachersData);
+    //     else if (tabsType === "student") setDisplayStudent(studentsData);
+    //   });
+    // } else if (
+    //   (targetVal.length <= 2 || !targetVal || targetVal === "") &&
+    //   (tabsType === "student" || tabsType === "teacher")
+    // ) {
+    //   if (tabsType === "student") setDisplayStudent(studentsData);
+    //   else if (tabsType === "teacher") setDisplayTeacher(teachersData);
+    //   else {
+    //     setDisplayStudent(studentsData);
+    //     setDisplayTeacher(teachersData);
+    //   }
+    // } else if (tabsType === "class") {
+    //   const res = classData.filter((state) => {
+    //     const name = state.name;
+    //     return e.target.value
+    //       ? name.toLowerCase().includes(e.target.value.toLowerCase())
+    //       : "";
+    //   });
+    //   if (e.target.value === "") setDisplayClass("");
+    //   else setDisplayClass(res);
+    // } else {
+    //   setDisplayTeacher(teachersData);
+    //   setDisplayStudent(studentsData);
+    // }
   }
 
   function onChangeClassSearch(e) {
@@ -174,6 +205,12 @@ function RenderCard({
     if (e.target.value === "") setDisplayClass("");
     else setDisplayClass(res);
   }
+  useEffect(() => {
+    if (targetValue.length < 2) {
+      if (tabsType === "student") setDisplayStudent("");
+      else if (tabsType === "teacher") setDisplayTeacher("");
+    }
+  }, [targetValue, displayStudent, displayTeacher]);
 
   useEffect(() => {
     setLoading(true);
@@ -378,6 +415,12 @@ function RenderCard({
             teachersData={displayTeacher === "" ? teachersData : displayTeacher}
             studentsData={displayStudent === "" ? studentsData : displayStudent}
             setTeachersData={setTeachersData}
+            loading={loading}
+            setUserPageNum={setUserPageNum}
+            userPageNum={userPageNum}
+            setLoading={setLoading}
+            setAlertData={setAlertData}
+            setAlertboxActive={setAlertboxActive}
             setStudentsData={setStudentsData}
             type={"userManagement"}
             tabsType={tabsType}
