@@ -17,188 +17,243 @@ import {
   CreateUser,
   deleteUser,
   getAllClass,
+  getAllStudents,
+  getAllTeachers,
   GetToken,
 } from "../../../../actions/action";
 import { useHistory } from "react-router-dom";
 import Dropdown from "../../../Dropdown/dropdown";
 import AlertComponent from "../../../Alertbox/alertbox";
+import Loading from "../../../Loading/loading";
 // import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
 export default function UserManagement({
   tabsType,
   studentsData,
+  setStudentsData,
+  setTeachersData,
   teachersData,
 }) {
   const [isActive, setIsActive] = useState(false);
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [alertboxActive, setAlertboxActive] = useState(false);
   const [alertData, setAlertData] = useState({});
   const [allTheClasses, setAllTheClasses] = useState([]);
   const history = useHistory();
   const token = GetToken();
 
+  function updateStudents() {
+    setLoading(true);
+    getAllStudents(token, 1, 100)
+      .then((data) => {
+        setStudentsData(data.data.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Öğrenciler getirilemedi" });
+      });
+  }
+
+  function updateTeachers() {
+    setLoading(true);
+    getAllTeachers(token, 1, 100)
+      .then((data) => {
+        setTeachersData(data.data.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Öğretmenler getirilemedi" });
+      });
+  }
+  function updateAllUsers() {
+    updateStudents();
+    updateTeachers();
+  }
   useEffect(() => {
-    getAllClass(token, 100, 1, "name,grade").then((data) => {
-      setAllTheClasses(data.data.data);
-    });
+    getAllClass(token, 100, 1, "name,grade")
+      .then((data) => {
+        setAllTheClasses(data.data.data);
+      })
+      .catch(() => {
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Sınıflar getirilemedi" });
+      });
   }, []);
   return (
     <div className={styles.schedule}>
-      <AlertComponent
-        isActive={alertboxActive}
-        setIsActive={setAlertboxActive}
-        alertData={alertData}
-      />
-      <div className={styles.topSide}>
-        <div className={styles.title}>Kullanıcı Yönetimi</div>
-        <div
-          onClick={() => {
-            setIsActive(true);
-            setModalType("add");
-          }}
-          className={styles.feedback}
-        >
-          <PlusCircleSolid className={styles.feedbackIcon} />
-          <div className={styles.feedbackTitle}>
-            {tabsType === "student"
-              ? "Yeni Öğrenci Oluştur"
-              : "Yeni Öğretmen oluştur"}
+      {loading ? (
+        <Loading fullscreen={true} />
+      ) : (
+        <>
+          <AlertComponent
+            isActive={alertboxActive}
+            setIsActive={setAlertboxActive}
+            alertData={alertData}
+          />
+          <div className={styles.topSide}>
+            <div className={styles.title}>Kullanıcı Yönetimi</div>
+            <div
+              onClick={() => {
+                setIsActive(true);
+                setModalType("add");
+              }}
+              className={styles.feedback}
+            >
+              <PlusCircleSolid className={styles.feedbackIcon} />
+              <div className={styles.feedbackTitle}>
+                {tabsType === "student"
+                  ? "Yeni Öğrenci Oluştur"
+                  : "Yeni Öğretmen oluştur"}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div className={styles.scheduleTitlesSection}>
-        <table>
-          <tr className={styles.scheduleTitlesRow}>
-            <div className={styles.scheduleTitles}>
-              <User className={`${styles.scheduleTitlesIcon} ${styles.user}`} />
-              <td className={styles.ogretmen}>Ad Soyad</td>
-            </div>
-            <div className={styles.scheduleTitles}>
-              <Ders
-                className={`${styles.scheduleTitlesIcon} ${styles.editAndDelete}`}
-              />
-              <td>Sil</td>
-            </div>
-          </tr>
-        </table>
-      </div>
-      <div className={styles.userManagementTableWrapper}>
-        <div className={styles.scheduleSection}>
-          <table>
-            {studentsData && studentsData !== null && tabsType === "student"
-              ? studentsData.map((item, index) => {
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => {
-                        setClassId(item._id);
-                        history.push(
-                          `/admin/user/${tabsType}/${
-                            item.id ? item.id : item._id
-                          }`
-                        );
-                      }}
-                    >
-                      <div className={styles.scheduleTeacher}>
-                        <div className={styles.avatar}>
-                          <img src={item.profile_photo} />
-                        </div>
-                        <td>{`${item.first_name} ${item.last_name}`}</td>
-                      </div>
-                      <td>
-                        {ReturnClass(
-                          allTheClasses,
-                          item.studentInfo.class &&
-                            typeof item.studentInfo.class !== "string"
-                            ? item.studentInfo.class._id
-                            : item.studentInfo.class
-                        )}
-                      </td>
-                      <td className={styles.space}></td>
-                      <td className={styles.space}>
-                        <TrashSolid
+          <div className={styles.scheduleTitlesSection}>
+            <table>
+              <tr className={styles.scheduleTitlesRow}>
+                <div className={styles.scheduleTitles}>
+                  <User
+                    className={`${styles.scheduleTitlesIcon} ${styles.user}`}
+                  />
+                  <td className={styles.ogretmen}>Ad Soyad</td>
+                </div>
+                <div className={styles.scheduleTitles}>
+                  <Ders
+                    className={`${styles.scheduleTitlesIcon} ${styles.editAndDelete}`}
+                  />
+                  <td>Sil</td>
+                </div>
+              </tr>
+            </table>
+          </div>
+          <div className={styles.userManagementTableWrapper}>
+            <div className={styles.scheduleSection}>
+              <table>
+                {studentsData && studentsData !== null && tabsType === "student"
+                  ? studentsData.map((item, index) => {
+                      return (
+                        <tr
+                          key={index}
                           onClick={() => {
-                            deleteUser(token, item._id)
-                              .then(() => {
-                                setAlertboxActive(true);
-                                setAlertData({
-                                  type: "success",
-                                  title: "Kullanıcı başarıyla silindi",
-                                });
-                              })
-                              .catch(() => {
-                                setAlertboxActive(true);
-                                setAlertData({
-                                  type: "error",
-                                  title: "Kullanıcı silinemedi",
-                                });
-                              });
+                            setClassId(item._id);
+                            history.push(
+                              `/admin/user/${tabsType}/${
+                                item.id ? item.id : item._id
+                              }`
+                            );
                           }}
-                          className={styles.deleteIcon}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })
-              : teachersData.map((item, index) => {
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => {
-                        setClassId(item._id);
-                        history.push(
-                          `/admin/user/${tabsType}/${
-                            item.id ? item.id : item._id
-                          }`
-                        );
-                      }}
-                    >
-                      <div className={styles.scheduleTeacher}>
-                        <div className={styles.avatar}>
-                          <img src={item.profile_photo} />
-                        </div>
-                        <td>{`${item.first_name} ${item.last_name}`}</td>
-                      </div>
-                      <td className={styles.space}></td>
-                      <td className={styles.space}>
-                        <TrashSolid
+                        >
+                          <div className={styles.scheduleTeacher}>
+                            <div className={styles.avatar}>
+                              <img src={item.profile_photo} />
+                            </div>
+                            <td>{`${item.first_name} ${item.last_name}`}</td>
+                          </div>
+                          <td>
+                            {item.studentInfo
+                              ? ReturnClass(
+                                  allTheClasses,
+                                  item.studentInfo.class &&
+                                    typeof item.studentInfo.class !== "string"
+                                    ? item.studentInfo.class._id
+                                    : item.studentInfo.class
+                                )
+                              : ""}
+                          </td>
+                          <td className={styles.space}></td>
+                          <td className={styles.space}>
+                            <TrashSolid
+                              onClick={() => {
+                                deleteUser(token, item._id)
+                                  .then(() => {
+                                    updateStudents();
+                                    setAlertboxActive(true);
+                                    setAlertData({
+                                      type: "success",
+                                      title: "Kullanıcı başarıyla silindi",
+                                    });
+                                  })
+                                  .catch(() => {
+                                    setAlertboxActive(true);
+                                    setAlertData({
+                                      type: "error",
+                                      title: "Kullanıcı silinemedi",
+                                    });
+                                  });
+                              }}
+                              className={styles.deleteIcon}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })
+                  : teachersData.map((item, index) => {
+                      return (
+                        <tr
+                          key={index}
                           onClick={() => {
-                            deleteUser(token, item._id).then(() => {
-                              setAlertboxActive(true);
-                              setAlertData({
-                                type: "success",
-                                title: "Kullanıcı başarıyla silindi",
-                              }).catch(() => {
-                                setAlertboxActive(true);
-                                setAlertData({
-                                  type: "error",
-                                  title: "Kullanıcı silinemedi",
-                                });
-                              });
-                            });
+                            setClassId(item._id);
+                            history.push(
+                              `/admin/user/${tabsType}/${
+                                item.id ? item.id : item._id
+                              }`
+                            );
                           }}
-                          className={styles.deleteIcon}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-          </table>
-        </div>
-      </div>
-      <Modal isActive={isActive} setIsActive={setIsActive}>
-        <RenderModalContent
-          isActive={isActive}
-          setIsActive={setIsActive}
-          type={modalType}
-          classId={classId}
-          tabsType={tabsType}
-          setAlertboxActive={setAlertboxActive}
-          setAlertData={setAlertData}
-          allTheClasses={allTheClasses}
-          teachersData={teachersData}
-        />
-      </Modal>
+                        >
+                          <div className={styles.scheduleTeacher}>
+                            <div className={styles.avatar}>
+                              <img src={item.profile_photo} />
+                            </div>
+                            <td>{`${item.first_name} ${item.last_name}`}</td>
+                          </div>
+                          <td className={styles.space}></td>
+                          <td className={styles.space}>
+                            <TrashSolid
+                              onClick={() => {
+                                deleteUser(token, item._id).then(() => {
+                                  updateTeachers();
+                                  setAlertboxActive(true);
+                                  setAlertData({
+                                    type: "success",
+                                    title: "Kullanıcı başarıyla silindi",
+                                  }).catch(() => {
+                                    setAlertboxActive(true);
+                                    setAlertData({
+                                      type: "error",
+                                      title: "Kullanıcı silinemedi",
+                                    });
+                                  });
+                                });
+                              }}
+                              className={styles.deleteIcon}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+              </table>
+            </div>
+          </div>
+          <Modal isActive={isActive} setIsActive={setIsActive}>
+            <RenderModalContent
+              isActive={isActive}
+              setIsActive={setIsActive}
+              type={modalType}
+              classId={classId}
+              tabsType={tabsType}
+              updateAllUsers={updateAllUsers}
+              setAlertboxActive={setAlertboxActive}
+              setAlertData={setAlertData}
+              allTheClasses={allTheClasses}
+              teachersData={teachersData}
+            />
+          </Modal>
+        </>
+      )}
     </div>
   );
 }
@@ -219,6 +274,7 @@ function RenderModalContent({
   allTheClasses,
   setAlertData,
   setAlertboxActive,
+  updateAllUsers,
 }) {
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
@@ -393,6 +449,7 @@ function RenderModalContent({
                 };
                 CreateUser(token, payload)
                   .then(() => {
+                    updateAllUsers();
                     setAlertboxActive(true);
                     setAlertData({
                       type: "success",
@@ -423,7 +480,22 @@ function RenderModalContent({
                   username: username,
                   password: newPassword,
                 };
-                CreateUser(token, payload).then(() => window.location.reload());
+                CreateUser(token, payload)
+                  .then(() => {
+                    updateAllUsers();
+                    setAlertboxActive(true);
+                    setAlertData({
+                      type: "success",
+                      title: "Kullanıcı başarıyla oluşturuldu",
+                    });
+                  })
+                  .catch(() => {
+                    setAlertboxActive(true);
+                    setAlertData({
+                      type: "error",
+                      title: "Kullanıcı oluşturulamadı",
+                    });
+                  });
                 setIsActive(false);
               } else setErrorMessage("Şifreler uyuşmuyor");
             }

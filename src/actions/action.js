@@ -215,7 +215,7 @@ export function getAllStudents(token, page, limit) {
   const response = axios.get(
     `${uri}/users?role=student&limit=${limit ? limit : 100}&page=${
       page ? page : 1
-    }`,
+    }&select=first_name,last_name,profile_photo,studentInfo`,
     config
   );
   return response;
@@ -227,7 +227,7 @@ export function getAllTeachers(token, page, limit) {
   const response = axios.get(
     `${uri}/users?role=instructor&limit=${limit ? limit : 100}&page=${
       page ? page : 1
-    }`,
+    }&select=first_name,last_name,profile_photo`,
     config
   );
   return response;

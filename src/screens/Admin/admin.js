@@ -23,10 +23,13 @@ import Login from "../../screens/Login/login";
 import Loading from "../../components/Loading/loading";
 import Pagination from "../../components/Pagination/pagination";
 import Dropdown from "../../components/Dropdown/dropdown";
+import AlertBox from "../../components/Alertbox/alertbox";
 export default function Admin() {
   const [announcementsData, setAnnouncementsData] = useState(false);
   const [newAnnouncementsData, setNewAnnouncementsData] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [alertboxActive, setAlertboxActive] = useState(false);
+  const [alerData, setAlertData] = useState({});
   const [cookies] = useCookies(false);
   const token = GetToken();
   const { pathname } = useLocation();
@@ -52,12 +55,19 @@ export default function Admin() {
   }, [token]);
   return (
     <div className={styles.adminContainer}>
+      <AlertBox
+        alertData={alerData}
+        isActive={alertboxActive}
+        setIsActive={setAlertboxActive}
+      />
       <SideBar />
       <div className={styles.adminMain}>
         <RenderCard
           pathname={pathname}
           userData={userData}
           setUserData={setUserData}
+          setAlertData={setAlertData}
+          setAlertboxActive={setAlertboxActive}
           announcementsData={announcementsData}
           setAnnouncementsData={setAnnouncementsData}
           newAnnouncementsData={newAnnouncementsData}
@@ -68,7 +78,12 @@ export default function Admin() {
   );
 }
 
-function RenderCard({ pathname, announcementsData }) {
+function RenderCard({
+  pathname,
+  announcementsData,
+  setAlertData,
+  setAlertboxActive,
+}) {
   const [tabsType, setTabsType] = useState("student");
   const { id } = useParams();
   const [dropdownActive, setDropdownActive] = useState();
@@ -170,7 +185,8 @@ function RenderCard({ pathname, announcementsData }) {
       .then(() => setLoading(false))
       .catch(() => {
         setLoading(false);
-        alert("Kullanıcılar Getirilemedi");
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Öğrenciler getirilemedi" });
       });
     getAllTeachers(token)
       .then((data) => {
@@ -180,7 +196,8 @@ function RenderCard({ pathname, announcementsData }) {
       .then(() => setLoading(false))
       .catch(() => {
         setLoading(false);
-        alert("Kullanıcılar Getirilemedi");
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Öğretmenler getirilemedi" });
       });
 
     getAllClass(token, 100, 1, "name,grade")
@@ -190,20 +207,27 @@ function RenderCard({ pathname, announcementsData }) {
       .then(() => setLoading(false))
       .catch(() => {
         setLoading(false);
-        alert("Sınıflar Getirilemedi");
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Sınıflar getirilemedi" });
       });
     GetAllExams(token)
       .then((data) => {
         setAllExams(data);
       })
       .then(() => setLoading(false))
-      .catch(() => alert("Sınavlar getirilemedi"));
+      .catch(() => {
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Sınavlar getirilemedi" });
+      });
     GetSpecifiApps(token, id ? id : 9)
       .then((item) => {
         setAppData(item);
       })
       .then(() => setLoading(false))
-      .catch(() => alert("Uygulamalar getirilemedi"));
+      .catch(() => {
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Uygulamalar getirilemedi" });
+      });
   }, []);
   if (!loading) {
     if (pathname === "/admin/announcements")
@@ -353,6 +377,8 @@ function RenderCard({ pathname, announcementsData }) {
           <Card
             teachersData={displayTeacher === "" ? teachersData : displayTeacher}
             studentsData={displayStudent === "" ? studentsData : displayStudent}
+            setTeachersData={setTeachersData}
+            setStudentsData={setStudentsData}
             type={"userManagement"}
             tabsType={tabsType}
           />
@@ -377,31 +403,42 @@ function RenderCard({ pathname, announcementsData }) {
                       .then((data) => {
                         setStudentsData(data.data.data);
                         setUserPageNum(
-                          data.data.pagination.next.page !== null
+                          data.data.pagination.next !== null
                             ? data.data.pagination.next.page - 1
-                            : data.data.pagination.next.previous + 1
+                            : data.data.pagination.previous.page + 1
                         );
                       })
                       .then(() => setLoading(false))
-                      .catch(() => {
+                      .catch((e) => {
                         setLoading(false);
-                        alert("Kullanıcılar Getirilemedi");
+                        if (!String(e).includes("previous")) {
+                          setAlertboxActive(true);
+                          setAlertData({
+                            type: "error",
+                            title: "Öğrenciler getirilemedi",
+                          });
+                        }
                       });
                   } else if (tabsType === "teacher") {
                     setLoading(true);
                     getAllTeachers(token, pageNum)
                       .then((data) => {
+                        setLoading(false);
                         setTeachersData(data.data.data);
                         setUserPageNum(
-                          data.data.pagination.next.page !== null
+                          data.data.pagination.next !== null
                             ? data.data.pagination.next.page - 1
-                            : data.data.pagination.next.previous + 1
+                            : data.data.pagination.previous.page + 1
                         );
                       })
                       .then(() => setLoading(false))
                       .catch(() => {
                         setLoading(false);
-                        alert("Kullanıcılar Getirilemedi");
+                        setAlertboxActive(true);
+                        setAlertData({
+                          type: "error",
+                          title: "Öğrenciler getirilemedi",
+                        });
                       });
                   }
                 }}
@@ -510,9 +547,9 @@ function RenderCard({ pathname, announcementsData }) {
                   .then((data) => {
                     setStudentsData(data.data.data);
                     setUserPageNum(
-                      data.data.pagination.next.page !== null
+                      data.data.pagination.next !== null
                         ? data.data.pagination.next.page - 1
-                        : data.data.pagination.next.previous + 1
+                        : data.data.pagination.previous.page + 1
                     );
                   })
                   .then(() => setLoading(false))
@@ -526,9 +563,9 @@ function RenderCard({ pathname, announcementsData }) {
                   .then((data) => {
                     setTeachersData(data.data.data);
                     setUserPageNum(
-                      data.data.pagination.next.page !== null
+                      data.data.pagination.next !== null
                         ? data.data.pagination.next.page - 1
-                        : data.data.pagination.next.previous + 1
+                        : data.data.pagination.previous.page + 1
                     );
                   })
                   .then(() => setLoading(false))
