@@ -57,7 +57,7 @@ export default function UserDetail({ tabsType }) {
   const [school, setSchool] = useState("");
   const [selectedClass, SetSelectedClass] = useState("");
   const [username, setUsername] = useState("");
-  const [className, setClassName] = useState("");
+  const [classesName, setClassesName] = useState("Sınıf bilgisi bulunamadı");
   const [allAppsData, setAllAppsData] = useState([]);
   const [role, setRole] = useState("");
   const [oldClassId, setOldClassId] = useState("");
@@ -73,7 +73,6 @@ export default function UserDetail({ tabsType }) {
   // eslint-disable-next-line no-unused-vars
   const [errorMessage, setErrorMessage] = useState(false);
   const userId = params.id;
-
   useEffect(() => {
     GetUserInformations(token, params.id)
       .then((data) => {
@@ -96,7 +95,7 @@ export default function UserDetail({ tabsType }) {
         if (Cdata.role === "student") {
           setSchool(Cdata.studentInfo.school);
           setSchoolNumber(Cdata.studentInfo.studentNumber);
-          setClassName(Cdata.studentInfo.class.name);
+          setClassesName(Cdata.studentInfo.class.name);
           setOldClassId(
             Cdata.studentInfo.class.id
               ? Cdata.studentInfo.class.id
@@ -243,7 +242,7 @@ export default function UserDetail({ tabsType }) {
                           id: item.id ? item.id : item._id,
                         };
                       })}
-                      value={className ? className : "Sınıf bilgisi bulunamadı"}
+                      value={classesName ? classesName : "Sınıf bilgisi yok"}
                       onClick={(e) => SetSelectedClass(e)}
                     />
                   </div>

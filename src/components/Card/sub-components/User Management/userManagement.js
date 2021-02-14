@@ -23,8 +23,7 @@ import {
 } from "../../../../actions/action";
 import { useHistory } from "react-router-dom";
 import Dropdown from "../../../Dropdown/dropdown";
-import AlertComponent from "../../../Alertbox/alertbox";
-import Loading from "../../../Loading/loading";
+
 // import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
 export default function UserManagement({
   tabsType,
@@ -292,7 +291,6 @@ function RenderModalContent({
   const [errorMessage, setErrorMessage] = useState(false);
   const [schoolName, setSchoolName] = useState(staticSchoolNames[0].value);
   const token = GetToken();
-
   useEffect(() => {
     if (tabsType === "student") setRole("student");
     else setRole("instructor");
@@ -443,11 +441,13 @@ function RenderModalContent({
                 let payload = {
                   first_name: firstname,
                   last_name: lastname,
+                  fullName: `${firstname} ${lastname}`,
                   role: role,
                   username: username,
                   password: newPassword,
-                  studentsInfo: {
+                  studentInfo: {
                     class: classId,
+
                     school: schoolName,
                     studentNumber: schoolNumber,
                   },

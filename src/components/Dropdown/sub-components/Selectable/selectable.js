@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Down } from "../../../../icons";
 import styles from "./selectable.module.scss";
 
@@ -9,9 +9,10 @@ export default function Selectable({
   zIndex,
 }) {
   const [dropdownActive, setDropdownActive] = useState(false);
-  const [dropdownValue, setDrodownValue] = useState(
-    value ? value : dropdownData[0]?.value
-  );
+  const [dropdownValue, setDrodownValue] = useState("");
+  useEffect(() => {
+    setDrodownValue(value ? value : dropdownData[0].value);
+  }, [value]);
   return (
     <div
       id={"classDropdown"}
