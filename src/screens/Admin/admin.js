@@ -33,6 +33,7 @@ export default function Admin() {
   const [cookies] = useCookies(false);
   const token = GetToken();
   const { pathname } = useLocation();
+
   useEffect(() => {
     if (token || cookies.admin) {
       if (IsAuth(token)) {
@@ -161,16 +162,16 @@ function RenderCard({
           if (targetValue.length >= 2) setDisplayTeacher(data.data.data);
           else setDisplayTeacher("");
         });
-      } else if (tabsType === "class") {
-        const res = classData.filter((state) => {
-          const name = state.name;
-          return e.target.value
-            ? name.toLowerCase().includes(e.target.value.toLowerCase())
-            : "";
-        });
-        if (e.target.value === "") setDisplayClass("");
-        else setDisplayClass(res);
       }
+    } else if (tabsType === "class") {
+      const res = classData.filter((state) => {
+        const name = state.name;
+        return targetValue
+          ? name.toLowerCase().includes(targetValue.toLowerCase())
+          : "";
+      });
+      if (targetValue === "") setDisplayClass("");
+      else setDisplayClass(res);
     }
     // const targetVal = e.target.value;
     // if (!targetVal) {
@@ -600,7 +601,10 @@ function RenderCard({
                 className={`${styles.tabsButton} ${
                   tabsType === "class" ? styles.tabsButtonActive : ""
                 }`}
-                onClick={() => setTabsType("class")}
+                onClick={() => {
+                  setUserPageNum(1);
+                  setTabsType("class");
+                }}
               >
                 Sınıf
               </div>
@@ -619,6 +623,8 @@ function RenderCard({
                 ? Number((totalStudent / 100).toFixed())
                 : tabsType === "teacher"
                 ? Number((totalTeacher / 100).toFixed())
+                : tabsType === "class"
+                ? 1
                 : ""
             }
             selectedPage={userPageNum}
