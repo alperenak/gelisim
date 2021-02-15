@@ -351,7 +351,7 @@ function RenderCard({
                       key={index}
                       onClick={() => {
                         if (item.name.includes("Tüm")) {
-                          setFilteredClass(classData);
+                          setFilteredClass("");
                           setDropdownName(item.name);
                         } else {
                           const res = classData.filter((item1) => {
