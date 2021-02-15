@@ -27,6 +27,7 @@ export default function ClassManagement({
   setLoading,
   setAlertData,
   setAlertboxActive,
+  setDisplayClass,
 }) {
   const [isActive, setIsActive] = useState(false);
   const [modalType, setModalType] = useState(false);
@@ -36,6 +37,7 @@ export default function ClassManagement({
 
   function updateClassFunction() {
     setLoading(true);
+    setDisplayClass("");
     getAllClass(token, 100, 1, "name,grade")
       .then((data) => {
         setClassData(data.data.data);

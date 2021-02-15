@@ -34,6 +34,8 @@ export default function UserManagement({
   setAlertData,
   userPageNum,
   setAlertboxActive,
+  setDisplayTeacher,
+  setDisplayStudent,
   teachersData,
 }) {
   const [isActive, setIsActive] = useState(false);
@@ -44,6 +46,7 @@ export default function UserManagement({
   const token = GetToken();
   function updateStudents() {
     setLoading(true);
+    setDisplayStudent("");
     getAllStudents(token, userPageNum, 100)
       .then((data) => {
         setStudentsData(data.data.data);
@@ -58,6 +61,7 @@ export default function UserManagement({
 
   function updateTeachers() {
     setLoading(true);
+    setDisplayTeacher("");
     getAllTeachers(token, userPageNum, 100)
       .then((data) => {
         setTeachersData(data.data.data);

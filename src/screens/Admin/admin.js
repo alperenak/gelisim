@@ -224,6 +224,11 @@ function RenderCard({
     else setDisplayClass(res);
   }
   useEffect(() => {
+    if (filteredClass === classData) {
+      setDropdownName("Tüm Sınıflar");
+    }
+  });
+  useEffect(() => {
     if (targetValue.length < 2) {
       if (tabsType === "student") setDisplayStudent("");
       else if (tabsType === "teacher") setDisplayTeacher("");
@@ -345,15 +350,20 @@ function RenderCard({
                     <div
                       key={index}
                       onClick={() => {
-                        const res = classData.filter((item1) => {
-                          return item1.name
-                            .slice(0, 2)
-                            .includes(
-                              item.name.slice(0, item.name.indexOf("."))
-                            );
-                        });
-                        setFilteredClass(res);
-                        setDropdownName(item.name);
+                        if (item.name.includes("Tüm")) {
+                          setFilteredClass(classData);
+                          setDropdownName(item.name);
+                        } else {
+                          const res = classData.filter((item1) => {
+                            return item1.name
+                              .slice(0, 2)
+                              .includes(
+                                item.name.slice(0, item.name.indexOf("."))
+                              );
+                          });
+                          setFilteredClass(res);
+                          setDropdownName(item.name);
+                        }
                       }}
                       className={styles.dropdownItems}
                     >
@@ -374,6 +384,7 @@ function RenderCard({
             }
             filterClass={selectedClass[0]}
             setClassData={setClassData}
+            setDisplayClass={setDisplayClass}
             type={"classManagement"}
             setLoading={setLoading}
             setAlertData={setAlertData}
@@ -455,6 +466,8 @@ function RenderCard({
             setAlertboxActive={setAlertboxActive}
             setStudentsData={setStudentsData}
             type={"userManagement"}
+            setDisplayStudent={setDisplayStudent}
+            setDisplayTeacher={setDisplayTeacher}
             tabsType={tabsType}
           />
           {!(
@@ -748,6 +761,9 @@ function RenderCard({
 }
 
 const ClassesNameData = [
+  {
+    name: "Tüm Sınıflar",
+  },
   {
     name: "1. Sınıflar",
   },
