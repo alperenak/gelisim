@@ -338,12 +338,6 @@ function RenderModalContent({
                   onClick={(e) => setClassId(e.id)}
                   zIndex
                 />
-                <h3>Okulu</h3>
-                <Dropdown
-                  type={"selectable"}
-                  dropdownData={staticSchoolNames}
-                  onClick={(e) => setSchoolName(e.value)}
-                />
               </>
             )}
             {/* <h3>Telefon Numarası</h3>
@@ -354,6 +348,13 @@ function RenderModalContent({
             />*/}
           </div>
           <div className={styles.inputCol}>
+            <h3>Okulu</h3>
+            <Dropdown
+              type={"selectable"}
+              dropdownData={staticSchoolNames}
+              onClick={(e) => setSchoolName(e.value)}
+              zIndex={true}
+            />
             <h3>E-postası</h3>
             <Input
               onChange={(e) => setUsername(e.target.value)}
