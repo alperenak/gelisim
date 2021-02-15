@@ -81,6 +81,7 @@ export default function Admin() {
 function RenderCard({
   pathname,
   announcementsData,
+  setAnnouncementsData,
   setAlertData,
   setAlertboxActive,
 }) {
@@ -110,11 +111,27 @@ function RenderCard({
   const [filteredClass, setFilteredClass] = useState(false);
   const [appData, setAppData] = useState([]);
   const history = useHistory();
+
   window.onclick = function (e) {
     if (e.target !== dropdownNames && e.target !== dropdownIcon) {
       setDropdownActive(false);
     }
   };
+
+  function updateStudentData() {
+    getAllStudents(token)
+      .then((data) => {
+        setStudentsData(data.data.data);
+        setTotalStudent(data.data.total);
+      })
+      .then(() => setLoading(false))
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Öğrenciler getirilemedi" });
+      });
+  }
+
   function onChangeText(e) {
     const res = announcementsData.filter((state) =>
       e.target.value
@@ -287,6 +304,10 @@ function RenderCard({
                   : []
                 : display
             }
+            setAnnouncementsData={setAnnouncementsData}
+            setLoading={setLoading}
+            setAlertData={setAlertData}
+            setAlertboxActive={setAlertboxActive}
             isAdmin={true}
           />
         </>
@@ -351,7 +372,11 @@ function RenderCard({
                 : displayClass
             }
             filterClass={selectedClass[0]}
+            setClassData={setClassData}
             type={"classManagement"}
+            setLoading={setLoading}
+            setAlertData={setAlertData}
+            setAlertboxActive={setAlertboxActive}
           />
         </>
       );
@@ -396,7 +421,10 @@ function RenderCard({
                 className={`${styles.tabsButton} ${
                   tabsType === "student" ? styles.tabsButtonActive : ""
                 }`}
-                onClick={() => setTabsType("student")}
+                onClick={() => {
+                  setTabsType("student");
+                  updateStudentData();
+                }}
               >
                 Öğrenci
               </div>
@@ -404,7 +432,10 @@ function RenderCard({
                 className={`${styles.tabsButton} ${
                   tabsType === "teacher" ? styles.tabsButtonActive : ""
                 }`}
-                onClick={() => setTabsType("teacher")}
+                onClick={() => {
+                  setTabsType("teacher");
+                  setUserPageNum(1);
+                }}
               >
                 Öğretmen
               </div>
@@ -475,13 +506,14 @@ function RenderCard({
                         );
                       })
                       .then(() => setLoading(false))
-                      .catch(() => {
-                        setLoading(false);
-                        setAlertboxActive(true);
-                        setAlertData({
-                          type: "error",
-                          title: "Öğrenciler getirilemedi",
-                        });
+                      .catch((e) => {
+                        if (!String(e).includes("page")) {
+                          setAlertboxActive(true);
+                          setAlertData({
+                            type: "error",
+                            title: "Öğretmenler getirilemedi",
+                          });
+                        }
                       });
                   }
                 }}
@@ -676,6 +708,9 @@ function RenderCard({
             type={"appManagement"}
             tabsType={tabsType}
             appData={appData}
+            setLoading={setLoading}
+            setAlertData={setAlertData}
+            setAlertboxActive={setAlertboxActive}
             setAppData={setAppData}
           />
         </>
@@ -690,7 +725,14 @@ function RenderCard({
       return (
         <>
           <h1>Sınav Yönetimi</h1>
-          <Card type={"exams"} allExams={allExams} />
+          <Card
+            type={"exams"}
+            allExams={allExams}
+            setAllExams={setAllExams}
+            setLoading={setLoading}
+            setAlertData={setAlertData}
+            setAlertboxActive={setAlertboxActive}
+          />
         </>
       );
     } else return <></>;

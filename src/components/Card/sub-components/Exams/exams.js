@@ -26,16 +26,39 @@ import {
   UpdateExam,
   getAllClass,
   DeleteExam,
+  GetAllExams,
 } from "../../../../actions/action";
 import Modal from "../../../Modal/modal";
 import Input from "../../../Input/input";
 import Button from "../../../Button/button";
-export default function Schedule({ teachersData, allExams }) {
+export default function Schedule({
+  teachersData,
+  allExams,
+  setAllExams,
+  setLoading,
+  setAlertData,
+  setAlertboxActive,
+}) {
   const token = GetToken();
   const [modalType, setModalType] = useState("");
   const [isActive, setIsActive] = useState("");
   const [classId, setClassId] = useState("");
   const [examId, setExamId] = useState("");
+
+  function updateExamsFunction() {
+    setLoading(true);
+    GetAllExams(token)
+      .then((data) => {
+        setAllExams(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Sınavlar getirilemedi" });
+      });
+  }
+
   return (
     <div className={styles.schedule}>
       <div className={styles.topSide}>
@@ -106,9 +129,24 @@ export default function Schedule({ teachersData, allExams }) {
                     />
                     <TrashSolid
                       onClick={() => {
-                        DeleteExam(token, item.class._id, item._id).then(() =>
-                          window.location.reload()
-                        );
+                        setLoading(true);
+                        DeleteExam(token, item.class._id, item._id)
+                          .then(() => {
+                            updateExamsFunction();
+                            setAlertboxActive(true);
+                            setAlertData({
+                              type: "success",
+                              title: "Sınav başarıyla silindi",
+                            });
+                          })
+                          .catch(() => {
+                            setLoading(false);
+                            setAlertboxActive(true);
+                            setAlertData({
+                              type: "error",
+                              title: "Sınav silinemedi",
+                            });
+                          });
                       }}
                       className={styles.deleteIcon}
                     />
@@ -125,6 +163,10 @@ export default function Schedule({ teachersData, allExams }) {
         <RenderModalContent
           isActive={isActive}
           setIsActive={setIsActive}
+          updateExamsFunction={updateExamsFunction}
+          setAlertData={setAlertData}
+          setAlertboxActive={setAlertboxActive}
+          setLoading={setLoading}
           type={modalType}
           classId={classId}
           setClassId={setClassId}
@@ -141,6 +183,10 @@ function RenderModalContent({
   setClassId,
   setIsActive,
   classId,
+  setAlertData,
+  updateExamsFunction,
+  setLoading,
+  setAlertboxActive,
 }) {
   const [lastname, setLastname] = useState("");
   const [classesData, setClassesData] = useState([]);
@@ -177,13 +223,22 @@ function RenderModalContent({
     GetAllCourses(token).then((data) => {
       setCourseData(data);
     });
-    getAllClass(token, 100, 1).then((data) => {
+    getAllClass(token, 100, 1, "name").then((data) => {
       setClassesData(data);
     });
   }, []);
   if (type === "edit" || type === "add")
     return (
-      <>
+      <div
+        style={{
+          padding: 25,
+          display: "flex",
+          alignItems: "flex-start",
+          flexDirection: "column",
+          paddingBottom: 0,
+        }}
+      >
+        <h3>Sınav zamanı</h3>
         <div>
           <div
             id={"classDropdown"}
@@ -303,6 +358,7 @@ function RenderModalContent({
             </div>
           </div>
         </div>
+        <h3>Sınav süresi (dk)</h3>
         <Input
           placeholder="Sınav süresini giriniz"
           value={lastname}
@@ -310,8 +366,9 @@ function RenderModalContent({
             setLastname();
             setExamDuration(e.target.value);
           }}
-          inputStyle={"modal"}
+          inputStyle={"detail"}
         />
+        <h3>Sınav saati</h3>
         <div>
           <div
             id={"classDropdown"}
@@ -391,6 +448,7 @@ function RenderModalContent({
             </div>
           </div>
         </div>
+        <h3>Dersler</h3>
         <div
           id={"classDropdown"}
           onClick={() => {
@@ -435,56 +493,59 @@ function RenderModalContent({
           </div>
         </div>
         {type == "add" ? (
-          <div
-            id={"classDropdown"}
-            onClick={() => {
-              setDropdownActive2(false);
-              setDropdownActive1(false);
-              setHourDropdownActive(false);
-              setMinDropdownActive(false);
-              setCourseDropdownActive(false);
-              setDropdownActive3(false);
-              setClassesDropdonActive(!classesDropdownIsActive);
-            }}
-            className={styles.dropdown}
-          >
+          <>
+            <h3>Sınıflar</h3>
             <div
-              id={"dropdownName"}
-              className={`${styles.dropdownName} ${styles.course}`}
+              id={"classDropdown"}
+              onClick={() => {
+                setDropdownActive2(false);
+                setDropdownActive1(false);
+                setHourDropdownActive(false);
+                setMinDropdownActive(false);
+                setCourseDropdownActive(false);
+                setDropdownActive3(false);
+                setClassesDropdonActive(!classesDropdownIsActive);
+              }}
+              className={styles.dropdown}
             >
-              <Down id={"dropdownIcon"} className={styles.downIcon} />
-              {className}
-            </div>
-            <div
-              className={`${styles.dropdownContent}  ${
-                classesDropdownIsActive ? styles.active : ""
-              }
+              <div
+                id={"dropdownName"}
+                className={`${styles.dropdownName} ${styles.course}`}
+              >
+                <Down id={"dropdownIcon"} className={styles.downIcon} />
+                {className}
+              </div>
+              <div
+                className={`${styles.dropdownContent}  ${
+                  classesDropdownIsActive ? styles.active : ""
+                }
             `}
-              onClick={() => {}}
-            >
-              {classesData.data?.data.map((item, index) => {
-                return (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      setClassName(item.name);
-                      setClassId(item._id);
-                    }}
-                    className={styles.dropdownItems}
-                  >
-                    {item.name}
-                  </div>
-                );
-              })}
+                onClick={() => {}}
+              >
+                {classesData.data?.data.map((item, index) => {
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        setClassName(item.name);
+                        setClassId(item._id);
+                      }}
+                      className={styles.dropdownItems}
+                    >
+                      {item.name}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </>
         ) : (
           ""
         )}
 
         <Button
           type={"modal"}
-          title={"Ekle"}
+          title={type === "add" ? "Sınav oluştur" : "Güncelle"}
           onClick={() => {
             const d = new Date(
               year,
@@ -494,23 +555,48 @@ function RenderModalContent({
               minDropdown
             );
             if (type === "add") {
-              CreateExam(token, classId, d, examDuration, courseId).then(() => {
-                // window.location.reload();
-              });
+              setLoading(true);
+              CreateExam(token, classId, d, examDuration, courseId)
+                .then(() => {
+                  updateExamsFunction();
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "success",
+                    title: "Sınav başarıyla eklendi",
+                  });
+                })
+                .catch(() => {
+                  setLoading(false);
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "error",
+                    title: "Sınav eklenemedi",
+                  });
+                });
             } else {
-              UpdateExam(
-                token,
-                classId,
-                examId,
-                d,
-                examDuration,
-                courseId
-              ).then(() => {});
+              setLoading(true);
+              UpdateExam(token, classId, examId, d, examDuration, courseId)
+                .then(() => {
+                  updateExamsFunction();
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "success",
+                    title: "Sınav başarıyla güncellendi",
+                  });
+                })
+                .catch(() => {
+                  setLoading(false);
+                  setAlertboxActive(true);
+                  setAlertData({
+                    type: "error",
+                    title: "Sınav eklenemedi",
+                  });
+                });
             }
             setIsActive(false);
           }}
         />
-      </>
+      </div>
     );
   else return "";
 }

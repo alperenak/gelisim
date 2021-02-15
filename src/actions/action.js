@@ -232,7 +232,18 @@ export function getAllTeachers(token, page, limit) {
   );
   return response;
 }
-
+export function getAllTeachersV2(token, page, limit) {
+  const config = {
+    headers: { authorization: `Bearer ${token}` },
+  };
+  const response = axios.get(
+    `${uri}/users?role=instructor&limit=${limit ? limit : 100}&page=${
+      page ? page : 1
+    }&select=first_name,last_name`,
+    config
+  );
+  return response;
+}
 export async function CreateUser(token, payload) {
   const config = {
     headers: { authorization: `Bearer ${token}` },

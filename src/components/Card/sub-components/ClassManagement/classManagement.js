@@ -14,22 +14,43 @@ import Button from "../../../Button/button";
 import {
   addClass,
   deleteClass,
-  getAllUser,
+  getAllClass,
+  getAllTeachersV2,
   GetToken,
   updateClass,
 } from "../../../../actions/action";
 import teacherAvatar from "../../../../assets/images/teacherAvatar.png";
-export default function ClassManagement({ filterClass, classData }) {
+export default function ClassManagement({
+  filterClass,
+  classData,
+  setClassData,
+  setLoading,
+  setAlertData,
+  setAlertboxActive,
+}) {
   const [isActive, setIsActive] = useState(false);
   const [modalType, setModalType] = useState(false);
   const [classId, setClassId] = useState(false);
   const [teachersData, setTeachersData] = useState([]);
   const token = GetToken();
+
+  function updateClassFunction() {
+    setLoading(true);
+    getAllClass(token, 100, 1, "name,grade")
+      .then((data) => {
+        setClassData(data.data.data);
+      })
+      .then(() => setLoading(false))
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Sınıflar getirilemedi" });
+      });
+  }
+
   useEffect(() => {
-    getAllUser(token).then((data) => {
-      setTeachersData(
-        data.data.data.filter((item) => item.role === "instructor")
-      );
+    getAllTeachersV2(token).then((data) => {
+      setTeachersData(data.data.data);
     });
   }, [filterClass]);
   return (
@@ -66,6 +87,7 @@ export default function ClassManagement({ filterClass, classData }) {
           </tr>
         </table>
       </div>
+
       <div className={styles.scheduleSection}>
         <table>
           {classData && classData !== null ? (
@@ -97,11 +119,28 @@ export default function ClassManagement({ filterClass, classData }) {
                   <td className={styles.space}>
                     <TrashSolid
                       onClick={() => {
-                        deleteClass(token, item._id).then(() =>
-                          window.location.reload()
-                        );
+                        setLoading(true);
+                        deleteClass(token, item._id)
+                          .then(() => {
+                            setLoading(false);
+                            updateClassFunction();
+                            setAlertboxActive(true);
+                            setAlertData({
+                              type: "success",
+                              title: "Sınıf başarıyla silindi",
+                            });
+                          })
+                          .catch(() => {
+                            setLoading(false);
+                            setAlertboxActive(true);
+                            setAlertData({
+                              type: "error",
+                              title: "Sınıf silinemedi",
+                            });
+                          });
                       }}
                       className={styles.deleteIcon}
+                      style={{ marginLeft: 50 }}
                     />
                   </td>
                 </tr>
@@ -119,14 +158,27 @@ export default function ClassManagement({ filterClass, classData }) {
           setIsActive={setIsActive}
           type={modalType}
           classId={classId}
+          setLoading={setLoading}
           teachersData={teachersData}
+          setAlertboxActive={setAlertboxActive}
+          setAlertData={setAlertData}
+          updateClassFunction={updateClassFunction}
         />
       </Modal>
     </div>
   );
 }
 
-function RenderModalContent({ type, setIsActive, classId, teachersData }) {
+function RenderModalContent({
+  type,
+  setIsActive,
+  classId,
+  teachersData,
+  updateClassFunction,
+  setAlertboxActive,
+  setAlertData,
+  setLoading,
+}) {
   const [updatingClassName, setUpdatingClassName] = useState("");
   const [dropdownActive, setDropdownActive] = useState("");
   const [dropdownName, setDropdownName] = useState("Öğretmen Seçiniz");
@@ -134,30 +186,56 @@ function RenderModalContent({ type, setIsActive, classId, teachersData }) {
   const token = GetToken();
   if (type === "edit")
     return (
-      <>
+      <div
+        style={{
+          padding: 25,
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <h3>Sınıf Adı</h3>
         <Input
           placeholder="Sınıfın adını giriniz"
           onChange={(e) => setUpdatingClassName(e.target.value)}
-          inputStyle={"modal"}
+          inputStyle={"detail"}
         />
 
         <Button
           type={"modal"}
-          title={"Ekle"}
+          title={"Güncelle"}
           onClick={() => {
             setIsActive(false);
-            updateClass(token, classId, updatingClassName).then(() =>
-              // GetAnnouncements(token)
-              window.location.reload()
-            );
-            setIsActive(false);
+            setLoading(true);
+            updateClass(token, classId, updatingClassName)
+              .then(() => {
+                updateClassFunction();
+                setAlertboxActive(true);
+                setAlertData({
+                  type: "success",
+                  title: "Sınıf başarıyla güncellendi",
+                });
+              })
+              .catch(() => {
+                setLoading(false);
+                setAlertboxActive(true);
+                setAlertData({ type: "error", title: "Sınıf güncellenemedi" });
+              });
           }}
         />
-      </>
+      </div>
     );
   else if (type === "add") {
     return (
-      <>
+      <div
+        style={{
+          padding: 25,
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <h3>Sınıf Öğretmeni</h3>
         <div
           id={"teacherDropdown"}
           onClick={() => setDropdownActive(!dropdownActive)}
@@ -189,23 +267,35 @@ function RenderModalContent({ type, setIsActive, classId, teachersData }) {
             })}
           </div>
         </div>
+        <h3>Sınıf adı</h3>
         <Input
           placeholder="Sınıfın adını giriniz"
           onChange={(e) => setUpdatingClassName(e.target.value)}
-          inputStyle={"modal"}
+          inputStyle={"detail"}
         />
         <Button
           type={"modal"}
-          title={"Ekle"}
+          title={"Oluştur"}
           onClick={() => {
+            setLoading(true);
             setIsActive(false);
-            addClass(token, instructorId, updatingClassName).then(() =>
-              window.location.reload()
-            );
-            setIsActive(false);
+            addClass(token, instructorId, updatingClassName)
+              .then(() => {
+                updateClassFunction();
+                setAlertboxActive(true);
+                setAlertData({
+                  type: "success",
+                  title: "Sınıf başarıyla eklendi",
+                });
+              })
+              .catch(() => {
+                setLoading(false);
+                setAlertboxActive(true);
+                setAlertData({ type: "error", title: "Sınıf eklenemedi" });
+              });
           }}
         />
-      </>
+      </div>
     );
   } else return <></>;
 }

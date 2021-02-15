@@ -2,11 +2,36 @@ import React from "react";
 import styles from "./appManagement.module.scss";
 import Button from "../../../Button/button";
 import AppsRender from "../../../Apps/apps";
-import { GetToken, SaveSpecificApps } from "../../../../actions/action";
+import {
+  GetSpecifiApps,
+  GetToken,
+  SaveSpecificApps,
+} from "../../../../actions/action";
+import { useParams } from "react-router-dom";
 
-export default function AppManagement({ dropdownValue, appData, setAppData }) {
+export default function AppManagement({
+  dropdownValue,
+  appData,
+  setAppData,
+  setLoading,
+  setAlertData,
+  setAlertboxActive,
+}) {
   const token = GetToken();
-
+  const { id } = useParams();
+  function updateAppsFunction() {
+    setLoading(true);
+    GetSpecifiApps(token, id ? id : 9)
+      .then((item) => {
+        setAppData(item);
+      })
+      .then(() => setLoading(false))
+      .catch(() => {
+        setLoading(false);
+        setAlertboxActive(true);
+        setAlertData({ type: "error", title: "Uygulamalar getirilemedi" });
+      });
+  }
   return (
     <>
       <div className={styles.apps}>
@@ -47,9 +72,24 @@ export default function AppManagement({ dropdownValue, appData, setAppData }) {
         </div>
         <Button
           onClick={() => {
-            SaveSpecificApps(token, appData.data.data).then(() =>
-              window.location.reload()
-            );
+            setLoading(false);
+            SaveSpecificApps(token, appData.data.data)
+              .then(() => {
+                updateAppsFunction();
+                setAlertboxActive(true);
+                setAlertData({
+                  type: "success",
+                  title: "Uygulamalar başarıyla güncellendi",
+                });
+              })
+              .catch(() => {
+                setLoading(false);
+                setAlertboxActive(true);
+                setAlertData({
+                  type: "error",
+                  title: "Uygulamalar güncellenemedi",
+                });
+              });
           }}
           type={"primary"}
           title={"Kaydet"}

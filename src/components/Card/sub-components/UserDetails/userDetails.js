@@ -8,7 +8,6 @@ import {
   UpdateUserInfo,
   AddNewApp,
   UpdateUserPasswordWithAdmin,
-  updateUser,
 } from "../../../../actions/action";
 import { useHistory, useParams } from "react-router-dom";
 import Input from "../../../Input/input";
@@ -494,7 +493,6 @@ export function RenderModalContent({
   const convertingApp = appPasswordData.map((item) => {
     return item.app.name;
   });
-  console.log(allApps);
   const token = GetToken();
   function UpdateApps() {
     GetUserAppPassword(token, id)

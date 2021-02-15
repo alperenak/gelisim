@@ -186,17 +186,7 @@ export default function UserManagement({
                   })
                 : teachersData.map((item, index) => {
                     return (
-                      <tr
-                        key={index}
-                        onClick={() => {
-                          setClassId(item._id);
-                          history.push(
-                            `/admin/user/${tabsType}/${
-                              item.id ? item.id : item._id
-                            }`
-                          );
-                        }}
-                      >
+                      <tr key={index}>
                         <div
                           onClick={() => {
                             setClassId(item._id);
@@ -208,31 +198,45 @@ export default function UserManagement({
                           }}
                           className={styles.scheduleRowWrapper}
                         >
-                          <div className={styles.scheduleTeacher}>
-                            <div className={styles.avatar}>
-                              <img src={item.profile_photo} />
+                          <div
+                            onClick={() => {
+                              setClassId(item._id);
+                              history.push(
+                                `/admin/user/${tabsType}/${
+                                  item.id ? item.id : item._id
+                                }`
+                              );
+                            }}
+                            className={styles.scheduleRowWrapper}
+                          >
+                            <div className={styles.scheduleTeacher}>
+                              <div className={styles.avatar}>
+                                <img src={item.profile_photo} />
+                              </div>
+                              <td>{`${item.first_name} ${item.last_name}`}</td>
                             </div>
-                            <td>{`${item.first_name} ${item.last_name}`}</td>
+                            <td className={styles.space}></td>
                           </div>
-                          <td className={styles.space}></td>
                         </div>
                         <td className={`${styles.space} ${styles.trashCircle}`}>
                           <TrashSolid
                             onClick={() => {
-                              deleteUser(token, item._id).then(() => {
-                                updateTeachers();
-                                setAlertboxActive(true);
-                                setAlertData({
-                                  type: "success",
-                                  title: "Kullanıcı başarıyla silindi",
-                                }).catch(() => {
+                              deleteUser(token, item._id)
+                                .then(() => {
+                                  updateTeachers();
+                                  setAlertboxActive(true);
+                                  setAlertData({
+                                    type: "success",
+                                    title: "Kullanıcı başarıyla silindi",
+                                  });
+                                })
+                                .catch(() => {
                                   setAlertboxActive(true);
                                   setAlertData({
                                     type: "error",
                                     title: "Kullanıcı silinemedi",
                                   });
                                 });
-                              });
                             }}
                             className={styles.deleteIcon}
                           />
@@ -428,7 +432,9 @@ function RenderModalContent({
         </div>
         <Button
           type={"modal"}
-          title={"Öğrenci Oluştur"}
+          title={
+            tabsType === "student" ? "Öğrenci Oluştur" : "Öğretmen Oluştur"
+          }
           onClick={() => {
             if (role === "student") {
               if (
@@ -469,8 +475,7 @@ function RenderModalContent({
                     });
                   });
               } else setErrorMessage("Şifreler uyuşmuyor");
-            } else if (role === "intructor") {
-              alert("instructor");
+            } else if (role === "instructor") {
               if (
                 newPassword &&
                 newPasswordAgain &&
@@ -481,6 +486,7 @@ function RenderModalContent({
                 let payload = {
                   first_name: firstname,
                   last_name: lastname,
+                  fullName: `${firstname} ${lastname}`,
                   role: role,
                   username: username,
                   password: newPassword,
