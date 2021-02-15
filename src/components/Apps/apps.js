@@ -51,7 +51,6 @@ export default function Apps({
 
 export function RenderIcon(props) {
   let { iconName } = props;
-  console.log(iconName);
 
   if (iconName === "office365" || iconName.includes("Office")) {
     return <img src={Office} {...props} className={styles.office} />;
