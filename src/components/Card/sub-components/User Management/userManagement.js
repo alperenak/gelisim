@@ -221,6 +221,7 @@ export default function UserManagement({
                         <td className={`${styles.space} ${styles.trashCircle}`}>
                           <TrashSolid
                             onClick={() => {
+                              setLoading(true);
                               deleteUser(token, item._id)
                                 .then(() => {
                                   updateTeachers();
@@ -231,6 +232,7 @@ export default function UserManagement({
                                   });
                                 })
                                 .catch(() => {
+                                  setLoading(false);
                                   setAlertboxActive(true);
                                   setAlertData({
                                     type: "error",
@@ -254,6 +256,7 @@ export default function UserManagement({
             type={modalType}
             classId={classId}
             tabsType={tabsType}
+            setLoading={setLoading}
             updateAllUsers={updateAllUsers}
             setAlertboxActive={setAlertboxActive}
             setAlertData={setAlertData}
@@ -282,6 +285,7 @@ function RenderModalContent({
   allTheClasses,
   setAlertData,
   setAlertboxActive,
+  setLoading,
   updateAllUsers,
 }) {
   const [username, setUsername] = useState("");
@@ -449,6 +453,7 @@ function RenderModalContent({
                 newPasswordAgain !== "" &&
                 newPassword === newPasswordAgain
               ) {
+                setLoading(true);
                 let payload = {
                   first_name: firstname,
                   last_name: lastname,
@@ -473,6 +478,7 @@ function RenderModalContent({
                     });
                   })
                   .catch(() => {
+                    setLoading(false);
                     setAlertboxActive(true);
                     setAlertData({
                       type: "error",
@@ -488,6 +494,7 @@ function RenderModalContent({
                 newPasswordAgain !== "" &&
                 newPassword === newPasswordAgain
               ) {
+                setLoading(true);
                 let payload = {
                   first_name: firstname,
                   last_name: lastname,
@@ -506,6 +513,7 @@ function RenderModalContent({
                     });
                   })
                   .catch(() => {
+                    setLoading(false);
                     setAlertboxActive(true);
                     setAlertData({
                       type: "error",
