@@ -699,7 +699,7 @@ export function RenderModalContent({
           type={"change"}
           title={"Kaydet"}
           onClick={() => {
-            if (appData.username) {
+            if (appData.username === null || appData.username) {
               const credentials = {
                 username:
                   typeof appUsername === "string"
