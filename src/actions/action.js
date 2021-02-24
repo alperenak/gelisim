@@ -203,7 +203,7 @@ export function getAllUserByClass(token, classId) {
     headers: { authorization: `Bearer ${token}` },
   };
   const response = axios.get(
-    `${uri}/users?role=student&classId=${classId}`,
+    `${uri}/users?role=student&studentInfo.class=${classId}&select=fullName,first_name,last_name,profile_photo`,
     config
   );
   return response;

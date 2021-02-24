@@ -105,6 +105,9 @@ function RenderCard({
   const [targetValue, setTargetValue] = useState("");
   const [totalStudent, setTotalStudent] = useState(0);
   const token = GetToken();
+  const [userManagementDropdown, setUserManagementDropdown] = useState(
+    "Tüm Sınıflar"
+  );
   const [userPageNum, setUserPageNum] = useState(1);
   const [teachersData, setTeachersData] = useState([]);
   const [classData, setClassData] = useState([]);
@@ -279,7 +282,7 @@ function RenderCard({
         setAlertboxActive(true);
         setAlertData({ type: "error", title: "Sınavlar getirilemedi" });
       });
-    GetSpecifiApps(token, id ? id : 9)
+    GetSpecifiApps(token, id && pathname.includes("app") ? id : 9)
       .then((item) => {
         setAppData(item);
       })
@@ -416,15 +419,19 @@ function RenderCard({
                   };
                 }),
               ]}
-              value={"Tüm Sınıflar"}
+              value={userManagementDropdown}
               onClick={(event) => {
+                setLoading(true);
+                setUserManagementDropdown(event.value);
                 if (event.value !== "Tüm Sınıflar")
-                  getAllUserByClass(token, event.id).then((data) =>
-                    setStudentsData(data.data.data)
-                  );
+                  getAllUserByClass(token, event.id)
+                    .then((data) => setStudentsData(data.data.data))
+                    .then(() => setLoading(false));
                 else
                   getAllStudents(token, 1, 100).then((data) =>
-                    setStudentsData(data.data.data)
+                    setStudentsData(data.data.data).then(() =>
+                      setLoading(false)
+                    )
                   );
               }}
             />
