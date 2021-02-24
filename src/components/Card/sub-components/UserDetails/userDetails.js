@@ -182,7 +182,6 @@ export default function UserDetail({
         setLoading(false);
         setErrorMessage(e);
       });
-
     GetUserAppPassword(token, params.id)
       .then((data) => {
         setAppPasswordData(data.data.data);
@@ -416,6 +415,8 @@ export default function UserDetail({
                         <div className={styles.appUsername}>
                           {item.credentials.email
                             ? item.credentials.email
+                            : item.credentials.teacher
+                            ? item.credentials.teacher
                             : item.credentials.username
                             ? item.credentials.username
                             : ""}
@@ -429,6 +430,8 @@ export default function UserDetail({
                               appName: item.app.title,
                               username: item.credentials.email
                                 ? item.credentials.email
+                                : item.credentials.teacher
+                                ? item.credentials.teacher
                                 : item.credentials.username,
                               password: item.credentials.password,
                             });
@@ -494,6 +497,7 @@ export function RenderModalContent({
     return item.app.name;
   });
   const token = GetToken();
+  console.log(appPassword, appData);
   function UpdateApps() {
     GetUserAppPassword(token, id)
       .then((data) => {
@@ -507,7 +511,6 @@ export function RenderModalContent({
         });
       });
   }
-
   if (modalType === "add") {
     return (
       <div>
@@ -675,7 +678,11 @@ export function RenderModalContent({
           onChange={(e) => setAppUsername(e.target.value)}
           method={"changePassword"}
           value={
-            appUsername && appUsername.status ? appData.username : appUsername
+            appUsername && appUsername.status
+              ? appData.username
+              : appData.teacher
+              ? appData.teacher
+              : appUsername
           }
           type={"text"}
           placeholder={"Kullanıcı Adın"}
