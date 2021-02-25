@@ -319,7 +319,7 @@ export default function UserDetail({
                       username: username,
                       createdAt: date,
                       __v: 0,
-                      assignedClass: oldClassId,
+                      // assignedClass: oldClassId,
                       profile_photo: profilePhoto,
                       id: params.id,
                     };
